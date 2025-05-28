@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // Desabilita a proteção CSRF
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login").permitAll() // Permite requisições apenas para rotas com prefixo /auth
+                        .requestMatchers("/users/createUser").permitAll()
                         .anyRequest().authenticated() // Exige JWT para requisições para outras rotas
                 )
                 .sessionManagement(sM -> sM.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

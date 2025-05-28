@@ -18,11 +18,11 @@ const usePasswordValidation = (): UsePasswordValidationResult => {
     const validatePasswordStrength = useCallback((pwd: string): string | null => {
         console.log(pwd)
         if (pwd.length === 0) return null;
-        if (pwd.length < 8) return "Password must be at least 8 characters long.";
-        if (!/[A-Z]/.test(pwd)) return "Password must contain at least one uppercase letter.";
-        if (!/[a-z]/.test(pwd)) return "Password must contain at least one lowercase letter.";
-        if (!/\d/.test(pwd)) return "Password must contain at least one number.";
-        if (!/[@$!%*?&]/.test(pwd)) return "Password must contain at least one special character (@$!%*?&).";
+        if (pwd.length < 8) return "A senha precisa ter pelo menos 8 caracteres.";
+        if (!/[A-Z]/.test(pwd)) return "A senha precisa ter pelo menos uma letra maiuscula.";
+        if (!/[a-z]/.test(pwd)) return "A senha precisa ter pelo menos uma letra minuscula.";
+        if (!/\d/.test(pwd)) return "A senha precisa ter pelo menos um numero";
+        if (!/[@$!%*?&]/.test(pwd)) return "A senha precisa ter pelo menos um caractere especial (@$!%*?&).";
         return null;
     }, []);
 
@@ -31,7 +31,7 @@ const usePasswordValidation = (): UsePasswordValidationResult => {
         if (strengthError) {
             setError(strengthError);
         } else if (password !== confirmPassword && confirmPassword !== '') {
-            setError('Passwords do not match.');
+            setError('As senhas não combinam.');
         } else {
             setError('');
         }
