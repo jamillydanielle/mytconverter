@@ -14,14 +14,14 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Usuário não autenticado: Acesso apenas a /listaconvertion e /login
+  // Usuário não autenticado: Acesso apenas a /register, /login e /users/createUser
   if (!token) {
-    if (currentPath === "/convertion" || currentPath === "/login") {
+    if (currentPath === "/register" || currentPath === "/login" || currentPath === '/users/users/createUser') { // Changed /users/createUser to /createUser
       console.log(`Permitindo acesso a ${currentPath} para usuário não autenticado`);
       return NextResponse.next();
     } else {
-      console.log("Redirecionando usuário não autenticado para /listaconvertion");
-      return NextResponse.redirect(new URL("/listaconvertion", req.url));
+      console.log("Redirecionando usuário não autenticado para /login");
+      return NextResponse.redirect(new URL("/login", req.url));
     }
   }
 

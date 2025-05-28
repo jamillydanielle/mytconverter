@@ -41,17 +41,15 @@ public class UserController {
     @PostMapping("/createUser")
     public ResponseEntity<String> createUser(@RequestBody Map<String, String> payload) {
 
-        List<String> requiredFields = Arrays.asList("name", "email", "type");
+        List<String> requiredFields = Arrays.asList("name", "email", "password");
         RequestValidator.validateFieldsForMap(payload, requiredFields);
-        System.out.println("create user payload:" + payload);
 
         // Populate user fields from payload
         String userName = payload.get("name");
         String userEmail = payload.get("email");
-        String typeStr = payload.get("type");
-        String senhaPadrao = "password";
+        String senha = payload.get("password");
 
-        User user = new User(userName, userEmail, senhaPadrao, UserType.valueOf(typeStr));
+        User user = new User(userName, userEmail, senha, UserType.USER);
 
         User createdUser = userService.createUser(user);
 

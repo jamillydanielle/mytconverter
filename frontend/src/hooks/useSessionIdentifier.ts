@@ -11,50 +11,62 @@ interface Tab {
 export function useSessionIdentifier() {
     const router = useRouter();
     const pathname = usePathname();
-    const [userData, setUserData] = useState<UserData | null>(null);
+    const [userData, setUserData] = useState<UserData | null>(null); // UserData do seu utils/jwtDecoder.ts
     const [tabs, setTabs] = useState<Tab[]>([]);
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
     useEffect(() => {
-        const userDataFromToken = decodeJwtToken();
+        const userDataFromToken = decodeJwtToken(); // Sua função de decodificação de token
         setUserData(userDataFromToken);
 
-        const getTabs = (): Tab[] => {
-            //Caso o token seja inválido, ou não tenha token, exibe o SessionIdentifier do Cliente
-            // TO-DO: Fazer o cliente ter um token. Esse return será removido
-            if (!userDataFromToken) {
-                return [{ label: "login", path: "/login" }];
-                //throw new Error ("UNAUTHORIZED: invalid or non-existent token");
+        const getTabsForUser = (): Tab[] => {
+            if (!userDataFromToken || !userDataFromToken.user) {
+                // Se não há dados do usuário ou token, default para login
+                // O RootRedirect já deve ter tratado o redirecionamento para /login se não houver token
+                return [{ label: "Login", path: "/login" }];
             }
 
-            if (userDataFromToken.user) {
-                switch (userDataFromToken.user.type) {
-                    case UserType.USER:
-                        return [{ label: "Minhas convercoes", path: "/convertion" }];
-                    case UserType.ADMIN:
-                        return [{ label: "Admin", path: "/users" }];
-                    default:
-                        return [{ label: "Erro", path: "/erro" }];
-                }
+            const userRole = userDataFromToken.user.type; // UserType.ADMIN ou UserType.USER
+
+            if (userRole === UserType.ADMIN) {
+                return [
+                    { label: "Usuários", path: "/users" },
+                    { label: "Todas Conversões", path: "/admin/conversions" } // Rota para admin ver conversões
+                ];
+            } else if (userRole === UserType.USER) {
+                return [
+                    { label: "Minhas Conversões", path: "/myconvertions" }
+                ];
+            } else {
+                console.warn("Tipo de usuário desconhecido:", userRole);
+                return [{ label: "Login", path: "/login" }]; // Fallback
             }
-            return [{ label: "Login", path: "/login" }];
         };
 
-        setTabs(getTabs());
-    }, [router]);
+        const newTabs = getTabsForUser();
+        setTabs(newTabs);
+
+    // Adicionando uma forma de reavaliar se o token mudar (ex: após login/logout)
+    // A reavaliação também ocorrerá se o componente que usa o hook for remontado devido à navegação.
+    }, [pathname]); // Reavalia tabs quando o pathname muda ou userData (se incluído)
 
     useEffect(() => {
         if (tabs.length > 0) {
-            const currentTabIndex = tabs.findIndex((tab) => pathname.includes(tab.path));
+            const currentTabIndex = tabs.findIndex((tab) => pathname === tab.path || pathname.startsWith(tab.path + '/'));
             if (currentTabIndex !== -1) {
                 setSelectedTabIndex(currentTabIndex);
+            } else {
+                // Se nenhuma aba corresponder exatamente, pode-se definir um padrão ou -1
+                // setSelectedTabIndex(0); // Ou lógica para encontrar a melhor correspondência
             }
         }
     }, [pathname, tabs]);
 
     const handleTabChange = (newValue: number) => {
-        setSelectedTabIndex(newValue);
-        router.push(tabs[newValue].path);
+        if (tabs[newValue]) {
+            setSelectedTabIndex(newValue);
+            router.push(tabs[newValue].path);
+        }
     };
 
     return {
