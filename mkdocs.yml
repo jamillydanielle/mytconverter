@@ -1,0 +1,38 @@
+site_name: Next Gen 2025
+
+theme:
+  name: material
+
+plugins:
+  - search:
+  - mkdocs-video:
+  - plantuml:
+      puml_url: https://www.plantuml.com/plantuml/
+      puml_keyword: plantuml
+      theme:
+        enabled: false
+  - mermaid2:
+      version: 11.4.1
+  # - mermaid:
+  # - spiredoc:
+  # - simple:
+  # - google-login:
+  #     client_id: 612997049174-dpuadd1cm74m3qqf22hvj323th5ev7sg.apps.googleusercontent.com
+      # base_path: nextgen25docs
+  # - playwright-pdf:
+
+
+markdown_extensions:
+  - pymdownx.highlight:
+      use_pygments: true
+      linenums: false
+      guess_lang: true
+  - pymdownx.superfences:
+
+# extra_javascript:
+#   - https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.0/prism.min.js
+#   - https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.0/components/prism-python.min.js  # Hightlight para Python
+#   - https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.0/components/prism-java.min.js  # Hihghligt para java
+
+# extra_css:
+#   - https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.0/themes/prism.min.css

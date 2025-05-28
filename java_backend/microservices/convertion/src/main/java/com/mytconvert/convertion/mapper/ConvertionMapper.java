@@ -1,11 +1,12 @@
 package com.mytconvert.convertion.mapper;
 
-
 import java.util.Map;
 
-import com.mytconvert.convertion.entity.Convertion;
-import com.mytconvert.convertion.entity.Mp4Convertion;
+import org.springframework.stereotype.Component;
 
+import com.mytconvert.convertion.entity.Convertion;
+import com.mytconvert.security.utils.JwtUtils;
+@Component
 public class ConvertionMapper {
 
     /**
@@ -31,12 +32,13 @@ public class ConvertionMapper {
         String quality = (String) payload.get("quality");
         String bitrate = (String) payload.get("bitrate");
 
-        Convertion convertion = new Convertion();
+        Convertion convertion = new Convertion(JwtUtils.getCurrentUserId().get(), youtubeUrl);
+
         convertion.setYoutubeUrl(youtubeUrl);
         if(quality == null && bitrate == null){
             throw new IllegalArgumentException("You must provide quality or bitrate.");
         }
-        
+
         return convertion;
     }
 }

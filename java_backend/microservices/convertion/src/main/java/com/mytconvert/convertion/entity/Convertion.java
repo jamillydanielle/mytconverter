@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "convertion")
+@Table(name = "convertions")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "convertion_type", discriminatorType = DiscriminatorType.STRING)
 public class Convertion {
@@ -31,6 +31,11 @@ public class Convertion {
 
     @Column(name = "edited_at")
     private LocalDateTime editedAt;
+
+    public Convertion(Long userId, String youtubeUrl){
+        this.userId = userId;
+        this.youtubeUrl = youtubeUrl;
+    }
 
     public boolean isCreated() {
         return createdAt != null;

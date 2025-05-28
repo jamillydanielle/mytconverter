@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  convertion:
+      build:
+        context: ./java_backend
+        args:
+          SERVICE_NAME: convertion
+      environment:
+        - DB_HOST=db
+        - DB_PORT=5432
+        - DB_USER=postgres
+        - DB_PASS=root
+        - JWT_SECRET_KEY=s/4KMb61LOrMYYAn4rfaQYSgr+le5SMrsMzKw8G6bXc=
+        - JWT_ISSUER=user-api
+        - SERVICE_NAME=convertion
+      depends_on:
+        - db
+      ports:
+        - "8081:8081"
+  usermanagement:
+    build:
+      context: ./java_backend
+      args:
+        SERVICE_NAME: usermanagement
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=root
+      - JWT_SECRET_KEY=s/4KMb61LOrMYYAn4rfaQYSgr+le5SMrsMzKw8G6bXc=
+      - JWT_ISSUER=user-api
+      - SERVICE_NAME=usermanagement
+    depends_on:
+      - db
+
+  
+
+  emailsender:
+    build:
+      context: ./java_backend
+      args:
+        SERVICE_NAME: emailsender
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=root
+      - JWT_SECRET_KEY=s/4KMb61LOrMYYAn4rfaQYSgr+le5SMrsMzKw8G6bXc=
+      - SECRET_KEY=hzdnRC+bRXml8WTloSvSCX/NhuyytESvL8ntJc03cNE=
+      - JWT_ISSUER=user-api
+      - SPRING_MAIL_PORT=1025
+      - SERVICE_NAME=emailsender
+    depends_on:
+      - db
+      - usermanagement
+      - convertion
+    ports:
+      - "8085:8085"
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: database
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "2345:5432"
+  gateway:
+    build:
+        context: ./node_backend
+        args:
+            APP_NAME: api_gateway
+    environment:
+      - JWT_SECRET_KEY=s/4KMb61LOrMYYAn4rfaQYSgr+le5SMrsMzKw8G6bXc=
+      - JWT_ISSUER=user-api
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./node_backend/api_gateway:/app
+      - /app/node_modules
+    depends_on:
+      - usermanagement
+      - convertion
+    command: npm run start:dev

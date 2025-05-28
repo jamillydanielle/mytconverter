@@ -20,5 +20,5 @@ public interface ConvertionRepository extends JpaRepository<Convertion, Long> {
 
     @Transactional
     @Modifying
-    void deleteByConvertionId(Long convertionId);
+    void deleteById(Long id);
 }

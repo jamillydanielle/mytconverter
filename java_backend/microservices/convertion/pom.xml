@@ -23,7 +23,7 @@
             <artifactId>spring-boot-maven-plugin</artifactId>
             <configuration>
                 <!-- Specify the main class you want to use -->
-                <mainClass>com.mytconvert.convertion.BasesApplication</mainClass>
+                <mainClass>com.mytconvert.convertion.ConvertionApplication</mainClass>
             </configuration>
         </plugin>
     </plugins>

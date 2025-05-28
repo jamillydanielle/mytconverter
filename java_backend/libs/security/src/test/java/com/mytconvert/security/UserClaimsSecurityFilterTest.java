@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.mytconvert.security.annotation.EnableUserClaimsSecurity;
-import com.mytconvert.security.annotation.HasType;
 import com.mytconvert.security.entity.LoggedUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

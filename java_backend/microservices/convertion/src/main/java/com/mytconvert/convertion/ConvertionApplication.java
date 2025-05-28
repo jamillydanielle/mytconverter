@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BasesApplication {
+public class ConvertionApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BasesApplication.class, args);
+		SpringApplication.run(ConvertionApplication.class, args);
 	}
 }
