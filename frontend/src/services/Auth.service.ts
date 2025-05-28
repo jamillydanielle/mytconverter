@@ -75,19 +75,3 @@ export const loginUser = async (
     throw new Error("An unknown error occurred");
   }
 };
-
-export const evaluatorLogin = async (email: string) => {
-  const response = await fetch("http://localhost:3001/requests/validateEvaluator", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Authentication failed");
-  }
-
-  return response.json();
-};
