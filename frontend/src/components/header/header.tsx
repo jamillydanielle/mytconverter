@@ -23,7 +23,6 @@ export default function Header() {
   const handleDisconnect = () => {
     removeToken();
     localStorage.removeItem('avatarUrl');
-    localStorage.removeItem('evaluatorData');
     router.push("/login");
   };
 
@@ -35,7 +34,7 @@ export default function Header() {
     <AppBar position="static" sx={{ backgroundColor: "white", boxShadow: "none", width: '100%', padding: {xs: '0 5%', sm: '10px 7%'} }}>
       <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography variant="h4" sx={{ cursor:"pointer" , fontWeight: "bold", color: "#9B4274", fontSize: { xs: '1.5rem', sm: '2rem' } }} onClick={navigateToHome}>
-          CI&T <span style={{ fontWeight: "400" }}>JOURNEY</span>
+          <span style={{ fontWeight: "400" }}>MytConvert</span>
         </Typography>
 
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
