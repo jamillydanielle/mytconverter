@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./src/@types", "./node_modules"], // Mantido
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    // --- ADICIONE A LINHA ABAIXO ---
+    "types": ["vite/client", "vitest/globals"], // Adicione 'vite/client' se estiver usando Vite
+    // Se você decidir usar jest-dom no futuro, adicione "@testing-library/jest-dom" aqui também
+    // ---------------------------------
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

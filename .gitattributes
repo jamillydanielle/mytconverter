@@ -1,0 +1,2 @@
+# Configuração para manter LF nos scripts shell, mesmo no Windows
+*.sh text eol=lf
