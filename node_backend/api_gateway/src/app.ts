@@ -33,7 +33,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 
     // Verificar se é uma rota de criação de usuário via POST
     if (req.method === 'POST' && req.path === '/users/users/createUser') {
-        console.log(`Rota POST /users/users detectada. Ignorando verificação de token.`);
+        console.log(`Rota POST /users/users/createUser detectada. Ignorando verificação de token.`);
         return next();
     }
 
@@ -85,7 +85,7 @@ const accessControl = (req: Request, res: Response, next: NextFunction) => {
     };
 
     if (isAllowed(['ADMIN'], ['/']) ||
-        isAllowed(['USER'], ['/'])) {
+        isAllowed(['USER'], ['/convertions'])) {
         console.log('Acesso permitido ao usuário:', userType);
         return next();
     }
@@ -94,8 +94,23 @@ const accessControl = (req: Request, res: Response, next: NextFunction) => {
     return res.status(403).json({ message: 'Acesso negado' });
 };
 
-// Antes de todos os proxys, adicione o middleware de verificação de token
-app.use(verifyToken);
+
+//Aplicar middlewares gerais para todas as outras rotas
+    app.use((req: Request, res: Response, next: NextFunction) => {
+        const excludedPaths = ['/users/auth', '/responses'];
+        const isExcludedPath = excludedPaths.some(path => req.path.startsWith(path));
+
+        if (!isExcludedPath) {
+            verifyToken(req, res, (err) => {
+                if (err) return next(err);
+                accessControl(req, res, next);
+            });
+        } else {
+            next();
+        }
+    });
+
+
 
 // Proxy para a API de gerenciamento de usuários (incluindo autenticação)
 app.use('/users', createProxyMiddleware({
@@ -116,11 +131,11 @@ app.use('/users', createProxyMiddleware({
 }));
 
 // Proxy for the convertion request API
-app.use('/convertion', createProxyMiddleware({
-    target: process.env.CONVERTION_API || 'http://convertion:8081',
+app.use('/convertions', createProxyMiddleware({
+    target: process.env.CONVERTION_API || 'http://convertions:8081',
     changeOrigin: true,
     pathRewrite: {
-        '^/convertion/convertion(.*)$': '/convertion$1'
+        '^/convertions/convertions(.*)$': '/convertions$1'
     },
     on: {
         proxyReq: (proxyReq, req, res) => {
@@ -129,6 +144,7 @@ app.use('/convertion', createProxyMiddleware({
             }
         },
     },
+    
     logger: console
 }));
 

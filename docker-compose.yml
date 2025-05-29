@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  convertion:
+  convertions:
       build:
         context: ./java_backend
         args:
-          SERVICE_NAME: convertion
+          SERVICE_NAME: convertions
       environment:
         - DB_HOST=db
         - DB_PORT=5432
@@ -13,7 +13,7 @@ services:
         - DB_PASS=root
         - JWT_SECRET_KEY=s/4KMb61LOrMYYAn4rfaQYSgr+le5SMrsMzKw8G6bXc=
         - JWT_ISSUER=user-api
-        - SERVICE_NAME=convertion
+        - SERVICE_NAME=convertions
       depends_on:
         - db
       ports:
@@ -54,7 +54,7 @@ services:
     depends_on:
       - db
       - usermanagement
-      - convertion
+      - convertions
     ports:
       - "8085:8085"
 
@@ -81,5 +81,5 @@ services:
       - /app/node_modules
     depends_on:
       - usermanagement
-      - convertion
+      - convertions
     command: npm run start:dev

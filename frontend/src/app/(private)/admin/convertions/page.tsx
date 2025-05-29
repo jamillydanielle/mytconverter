@@ -1,28 +1,54 @@
-// app/admin/conversions/page.tsx
+// frontend/src/app/(private)/admin/convertions/page.tsx
+"use client";
+
 import AppLayout from '@/components/layout/AppLayout';
-import type { Metadata } from 'next';
-import { Box, Typography, Divider, Paper } from '@mui/material';
+import { Box, Typography, Divider, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { useConvertions } from '@/hooks/useConvertions';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
-export const metadata: Metadata = {
-  title: 'Todas Conversões - Admin',
-  description: 'Visualização de todas as conversões do sistema.',
-};
+export default function ConvertionsPage() {
+  const { convertions, loading, error } = useConvertions();
 
-export default function AdminConversionsPage() {
-  // Lógica para buscar e listar todas as conversões
   return (
-    <AppLayout sidebarState="dashboard"> {/* ou sidebarState="admin" */}
+    <AppLayout sidebarState="dashboard">
       <Box sx={{ mb: 3, width: '100%' }}>
         <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'medium' }}>
-          Todas as Conversões (Admin)
+          Gerenciar Conversões
         </Typography>
         <Divider />
       </Box>
-      <Paper sx={{p: 2}}>
-        <Typography variant="body1">
-          Conteúdo da página de visualização de todas as conversões.
-          (Ex: Tabela de conversões com filtros, etc.)
-        </Typography>
+      <Paper sx={{ p: 2 }}>
+        {loading ? (
+          <Typography>Carregando conversões...</Typography>
+        ) : error ? (
+          <Typography color="error">Erro ao carregar conversões: {error}</Typography>
+        ) : (
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>URL</TableCell>
+                  <TableCell>Tipo</TableCell>
+                  <TableCell>Tamanho</TableCell>
+                  <TableCell>Autor</TableCell>
+                  <TableCell>Criado em</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {convertions.map((convertion) => (
+                  <TableRow key={convertion.id}>
+                    <TableCell>{convertion.url}</TableCell>
+                    <TableCell>{convertion.Type}</TableCell>
+                    <TableCell>{convertion.file_size}</TableCell>
+                    <TableCell>{convertion.user_name}</TableCell>
+                    <TableCell>{format(new Date(convertion.createdAt), 'dd/MM/yyyy HH:mm:ss', { locale: ptBR })}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </Paper>
     </AppLayout>
   );
