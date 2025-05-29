@@ -34,16 +34,16 @@ public CommandLineRunner createAdminUserRunner() {
             .collect(Collectors.toList());
         
         if (filteredArgs.size() >= 2 && "create-admin".equals(filteredArgs.get(0))) {
-            createAdminUser(filteredArgs.get(1), filteredArgs.get(2));
+            createAdminUser(filteredArgs.get(1), filteredArgs.get(2), filteredArgs.get(3));
         } else {
             System.out.println("Application started normally. Use 'create-admin' command to create an admin user.");
         }
     };
 }
 
-    private void createAdminUser(String name, String email) {
+    private void createAdminUser(String name, String email, String password) {
         try {
-            User newAdmin = userService.createAdminUser(name, email);
+            User newAdmin = userService.createAdminUser(name, email, password);
             System.out.println("Admin user created successfully: " + newAdmin);
         } catch (ResponseStatusException e) {
             System.out.println("Error creating admin user: " + e.getReason());

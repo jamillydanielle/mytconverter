@@ -33,8 +33,8 @@ public class UserJWTAuthenticationFilter extends OncePerRequestFilter {
         @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         String token = recoveryToken(request); // Recupera o token do cabeçalho Authorization da requisição
-        //System.out.println("criatura!!!");
-        //System.out.println(token);
+        System.out.println("criatura!!!");
+        System.out.println(token);
         
         if (token != null) {
             try {

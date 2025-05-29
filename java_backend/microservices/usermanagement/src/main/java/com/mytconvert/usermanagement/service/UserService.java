@@ -142,7 +142,7 @@ public class UserService {
     }
     
     
-    public User createAdminUser(String name, String email) {
+    public User createAdminUser(String name, String email, String password) {
         System.out.println("entrou no medo create admin");
         Optional<User> existingAdmin = userRepository.findByEmail(email);
         if (existingAdmin.isPresent()) {
@@ -151,12 +151,12 @@ public class UserService {
         }
     
         
-        String password = passwordEncoder.encode("password");
+        String encodedPassword = passwordEncoder.encode(password);
     
         User adminUser = new User(
             name,
             email,
-            password,
+            encodedPassword,
             UserType.ADMIN
         );
         User createdUser = userRepository.save(adminUser);

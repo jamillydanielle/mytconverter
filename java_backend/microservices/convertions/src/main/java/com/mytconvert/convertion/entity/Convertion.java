@@ -23,8 +23,14 @@ public class Convertion {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "user_name", nullable = false)
+    private String userName;
+
     @Column(name = "url", nullable = false)
     private String youtubeUrl;
+
+    @Column(name = "file_size", nullable = false)
+    private Long fileSize;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -32,9 +38,11 @@ public class Convertion {
     @Column(name = "edited_at")
     private LocalDateTime editedAt;
 
-    public Convertion(Long userId, String youtubeUrl){
+    public Convertion(Long userId, String youtubeUrl, String userName, Long fileSize){
         this.userId = userId;
         this.youtubeUrl = youtubeUrl;
+        this.userName = userName;
+        this.fileSize = fileSize;
     }
 
     public boolean isCreated() {
