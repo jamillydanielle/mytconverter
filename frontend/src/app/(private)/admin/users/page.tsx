@@ -1,31 +1,48 @@
-// app/users/page.tsx
-import AppLayout from '@/components/layout/AppLayout';
-import type { Metadata } from 'next';
-import { Box, Typography, Divider, Paper } from '@mui/material';
+// frontend/src/app/(private)/users/page.tsx
+"use client";
 
-export const metadata: Metadata = {
-  title: 'Gerenciar Usuários - Admin',
-  description: 'Administração de usuários do sistema.',
-};
+import AppLayout from '@/components/layout/AppLayout';
+import { Box, Typography, Divider, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { useUsers } from '@/hooks/useUsers';
 
 export default function UsersPage() {
-  // Lógica para buscar e listar usuários aqui
-  // const { data: users, isLoading, error } = useFetchUsers(); // Exemplo
+  const { users, loading, error } = useUsers();
 
   return (
-    <AppLayout sidebarState="dashboard"> {/* ou um sidebarState="admin" se tiver configurações diferentes */}
+    <AppLayout sidebarState="dashboard">
       <Box sx={{ mb: 3, width: '100%' }}>
         <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'medium' }}>
           Gerenciar Usuários
         </Typography>
         <Divider />
       </Box>
-      <Paper sx={{p: 2}}>
-        <Typography variant="body1">
-          Conteúdo da página de gerenciamento de usuários aqui.
-          (Ex: Tabela de usuários, botões de adicionar/editar/remover, etc.)
-        </Typography>
-        {/* Exemplo: <UsersTable users={users} /> */}
+      <Paper sx={{ p: 2 }}>
+        {loading ? (
+          <Typography>Carregando usuários...</Typography>
+        ) : error ? (
+          <Typography color="error">Erro ao carregar usuários: {error}</Typography>
+        ) : (
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nome</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Tipo de Usuário</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.type}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </Paper>
     </AppLayout>
   );

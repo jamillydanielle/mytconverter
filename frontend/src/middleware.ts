@@ -55,15 +55,15 @@ export function middleware(req: NextRequest) {
     return NextResponse.next(); // Permitir acesso
   } else if (userType === "USER") {
     if (currentPath.startsWith("/users")) {
-      console.log("Acesso negado a /users para USER, redirecionando para /convertion");
-      return NextResponse.redirect(new URL("/convertion", req.url));
+      console.log("Acesso negado a /users para USER, redirecionando para /myconvertions");
+      return NextResponse.redirect(new URL("/myconvertions", req.url));
     }
     console.log("User acessando:", currentPath);
     return NextResponse.next(); // Permitir acesso a outras rotas
   } else {
     // Tipo de usuário inválido
-    console.log("Tipo de usuário inválido, redirecionando para /convertion");
-    return NextResponse.redirect(new URL("/convertion", req.url));
+    console.log("Tipo de usuário inválido, redirecionando para /myconvertions");
+    return NextResponse.redirect(new URL("/myconvertions", req.url));
   }
 }
 

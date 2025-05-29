@@ -4,14 +4,14 @@
 import React from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import FeatureCard from '@/components/dashboard/FeatureCard';
-import useMyConversionsFeatures, { Feature } from '@/hooks/useMyConvertionsFeatures'; // Corrected import
+import useMyConvertionsFeatures, { Feature } from '@/hooks/useMyConvertionsFeatures'; // Corrected import
 import { Grid, Box, Divider, Typography } from '@mui/material';
 
 // Metadata não pode ser exportada de Client Components.
 // Deve ser definida no layout.tsx pai ou usando generateMetadata se esta fosse uma Server Page.
 
-const MyConversionsPage = () => {
-  const { features } = useMyConversionsFeatures();
+const MyConvertionsPage = () => {
+  const { features } = useMyConvertionsFeatures();
 
   return (
     <AppLayout sidebarState="dashboard">
@@ -39,4 +39,4 @@ const MyConversionsPage = () => {
   );
 };
 
-export default MyConversionsPage;
+export default MyConvertionsPage;

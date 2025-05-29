@@ -11,7 +11,7 @@ export interface Feature { // Added export here
   onClick: () => void;
 }
 
-const useMyConversionsFeatures = () => {
+const useMyConvertionsFeatures = () => {
   const handleFeatureClick = useCallback((featureName: string) => {
     alert(`Funcionalidade "${featureName}" clicada!`);
     // Add navigation or action logic here
@@ -47,4 +47,4 @@ const useMyConversionsFeatures = () => {
   return { features };
 };
 
-export default useMyConversionsFeatures;
+export default useMyConvertionsFeatures;

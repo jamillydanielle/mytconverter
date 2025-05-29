@@ -30,8 +30,9 @@ export function useSessionIdentifier() {
 
             if (userRole === UserType.ADMIN) {
                 return [
-                    { label: "Usuários", path: "/users" },
-                    { label: "Todas Conversões", path: "/admin/conversions" } // Rota para admin ver conversões
+                    { label: "Usuários", path: "/admin/users" },
+                    { label: "Todas Conversões", path: "/admin/convertions" },
+                    { label: "Minhas Conversões", path: "/myconvertions" } // Rota para admin ver conversões
                 ];
             } else if (userRole === UserType.USER) {
                 return [

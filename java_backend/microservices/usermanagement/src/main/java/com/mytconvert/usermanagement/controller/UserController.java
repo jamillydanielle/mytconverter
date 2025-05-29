@@ -186,18 +186,5 @@ public class UserController {
         return ResponseEntity.ok(activateUser);
     }
 
-    @PostMapping("/local-admin")
-    public ResponseEntity<String> createLocalAdminUser(@RequestBody AdminUserCreationRequest request) {
-        System.out.println("payload create admin: " + request.toString());
-
-        List<String> requiredFields = Arrays.asList("name", "email");
-        RequestValidator.validateFields(request, requiredFields);
-
-        User createdUser = userService.createAdminUser(
-                request.getName(),
-                request.getEmail());
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Local admin user created successfully: " + createdUser.getName());
-    }
+   
 }
