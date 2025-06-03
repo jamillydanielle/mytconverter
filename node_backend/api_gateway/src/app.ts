@@ -6,7 +6,7 @@ import cors from 'cors';
 
 
 const corsOptions = {
-    origin: ['http://frontend:3000', 'http://localhost:3000']
+    origin: ['http://frontend:3002', 'http://localhost:3002']
 };
 const app = express();
 app.use(cors(corsOptions));
@@ -35,29 +35,31 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     if (req.method === 'POST' && req.path === '/users/users/createUser') {
         console.log(`Rota POST /users/users/createUser detectada. Ignorando verificação de token.`);
         return next();
-    }
+    }else{
 
-    const token = req.cookies?.token || req.headers.authorization?.split(' ')[1]; // Busca no cookie ou no header
+        const token = req.cookies?.token || req.headers.authorization?.split(' ')[1]; // Busca no cookie ou no header
 
-    if (!token) {
-        return res.status(401).json({ message: 'Token não fornecido!' });
-    }
-
-    jwt.verify(token, SECRET_KEY, { issuer: ISSUER }, (err: any, decoded: any) => {
-        if (err) {
-            console.error('Erro na verificação do token:', err);
-            return res.status(401).json({ message: 'Token inválido ou expirado!' });
+        if (!token) {
+            return res.status(401).json({ message: 'Token não fornecido!' });
         }
 
-        req.headers['x-user'] = JSON.stringify(decoded.user);
-        try {
-            req.user = JSON.parse(decoded.user);
-        } catch {
-            req.user = decoded.user
-        }
-        next();
-    });
+        jwt.verify(token, SECRET_KEY, { issuer: ISSUER }, (err: any, decoded: any) => {
+            if (err) {
+                console.error('Erro na verificação do token:', err);
+                return res.status(401).json({ message: 'Token inválido ou expirado!' });
+            }
+
+            req.headers['x-user'] = JSON.stringify(decoded.user);
+            try {
+                req.user = JSON.parse(decoded.user);
+            } catch {
+                req.user = decoded.user
+            }
+            next();
+        });
+    }
 };
+
 app.get('/users/auth/login', (req: Request, res: Response) => {
     console.log('Rota /users/auth/login foi acessada.');
     res.status(200).send({ message: 'Login permitido sem autenticação.' });
@@ -85,19 +87,19 @@ const accessControl = (req: Request, res: Response, next: NextFunction) => {
     };
 
     if (isAllowed(['ADMIN'], ['/']) ||
-        isAllowed(['USER'], ['/convertions'])) {
+        isAllowed(['USER'], ['/convertions', '/users/users/createUser'])) {
         console.log('Acesso permitido ao usuário:', userType);
         return next();
     }
 
     console.log('Acesso negado ao usuário:', userType);
-    return res.status(403).json({ message: 'Acesso negado' });
+    return res.status(401).json({ message: 'Acesso negado' });
 };
 
 
 //Aplicar middlewares gerais para todas as outras rotas
     app.use((req: Request, res: Response, next: NextFunction) => {
-        const excludedPaths = ['/users/auth', '/responses'];
+        const excludedPaths = ['/users/auth', '/users/users/createUser'];
         const isExcludedPath = excludedPaths.some(path => req.path.startsWith(path));
 
         if (!isExcludedPath) {
