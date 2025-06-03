@@ -149,7 +149,7 @@ Siga estes passos para configurar e rodar o projeto:
 
     ```bash
     podman exec -it mytconverter-usermanagement-1 bash
-    java -jar usermanagement.jar create-admin "Administrador mytconvert" admin@example.br "Password123*" --server.port=0
+    java -jar usermanagement.jar create-admin "Administrador mytconvert" admin@example.com "Password123*" --server.port=0
     ```
 
 4.  **Acessar e Configurar o Sistema:**
@@ -161,3 +161,6 @@ Siga estes passos para configurar e rodar o projeto:
     3.  **Faça Login como Administrador:** Use as credenciais do administrador (admin@example.com e a senha que você acabou de criar) para fazer login no sistema.
 
     4.  **Crie Usuários via Interface:** Depois de logado como administrador, use a interface do frontend para criar novos usuários com diferentes roles.
+
+
+    ANALISAR ADICIONAR METRICAS AO ADM
