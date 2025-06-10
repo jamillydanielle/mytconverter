@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "python-backend"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+fastapi = {extras = ["all"], version = "^0.115.11"}
+peewee = "^3.17.9"
+psycopg2-binary = "^2.9.10"
+python-dotenv = "^1.0.1"
+sqlalchemy = "^2.0.41"
+requests = "^2.32.3"
+yt-dlp = "^2025.5.22"
+pyjwt = "^2.10.1"
+asyncpg = "^0.30.0"
+pydantic-settings = "^2.9.1"
+ffmpeg = "^1.4"
+ffprobe = "^0.5"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pytest-asyncio = "^0.25.3"
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
