@@ -20,7 +20,6 @@ public class RequestValidatorTest {
             this.email = email;
         }
 
-        // Getters e Setters
         public String getName() {
             return name;
         }
@@ -40,109 +39,93 @@ public class RequestValidatorTest {
 
     @Test
     public void testValidEmail() {
-        assertTrue(RequestValidator.isValidEmail("teste@example.br")); // Deve retornar true
-        assertFalse(RequestValidator.isValidEmail("invalido@exemplo@com")); // Deve retornar false
-        assertFalse(RequestValidator.isValidEmail("invalido@dominio")); // Deve retornar false
-        assertFalse(RequestValidator.isValidEmail("sem-arroba.com")); // Deve retornar false
+        assertTrue(RequestValidator.isValidEmail("teste@example.com"));
+        assertFalse(RequestValidator.isValidEmail("invalido@exemplo@com")); 
+        assertFalse(RequestValidator.isValidEmail("invalido@dominio")); 
+        assertFalse(RequestValidator.isValidEmail("sem-arroba.com")); 
     }
 
     @Test
     public void testValidatePasswordStrength_ThrowsException_WhenPasswordIsWeak() {
-        // Arrange
-        String weakPassword = "weak"; // Senha que não atende aos critérios
+        String weakPassword = "weak";
 
-        // Act & Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             RequestValidator.validatePasswordStrength(weakPassword);
         });
 
-        // Verifica se a exceção lançada é a esperada
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertEquals("The provided password is too weak. Please ensure it includes at least one number, one uppercase letter, one lowercase letter, and have length between 8 and 16 characters.", 
+        assertEquals("A senha fornecida e muito fraca. Por favor garanta que a senha incua pelo menos um numero, uma letra maiuscula, uma letra minuscula e tenha entre 8 e 16 caracteres.", 
                      exception.getReason());
     }
 
     @Test
     public void testValidatePasswordStrength_ThrowsException_WhenPasswordIsTooShort() {
-        // Arrange
-        String shortPassword = "Short1!"; // Senha que tem menos de 8 caracteres
+        String shortPassword = "Short1!";
 
-        // Act & Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             RequestValidator.validatePasswordStrength(shortPassword);
         });
 
-        // Verifica se a exceção lançada é a esperada
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertEquals("The provided password is too weak. Please ensure it includes at least one number, one uppercase letter, one lowercase letter, and have length between 8 and 16 characters.", 
+        assertEquals("A senha fornecida e muito fraca. Por favor garanta que a senha incua pelo menos um numero, uma letra maiuscula, uma letra minuscula e tenha entre 8 e 16 caracteres.", 
                      exception.getReason());
     }
 
     @Test
     public void testValidatePasswordStrength_ThrowsException_WhenPasswordHasNoNumber() {
-        // Arrange
-        String passwordWithoutNumber = "Password!"; // Senha sem número
+        String passwordWithoutNumber = "Password!";
 
-        // Act & Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             RequestValidator.validatePasswordStrength(passwordWithoutNumber);
         });
 
-        // Verifica se a exceção lançada é a esperada
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertEquals("The provided password is too weak. Please ensure it includes at least one number, one uppercase letter, one lowercase letter, and have length between 8 and 16 characters.", 
+        assertEquals("A senha fornecida e muito fraca. Por favor garanta que a senha incua pelo menos um numero, uma letra maiuscula, uma letra minuscula e tenha entre 8 e 16 caracteres.", 
                      exception.getReason());
     }
 
     @Test
     public void testValidatePasswordStrength_Passes_WhenPasswordIsStrong() {
-        // Arrange
-        String strongPassword = "Strong1!"; // Senha que atende aos critérios
+        String strongPassword = "Strong1!";
 
-        // Act
         RequestValidator.validatePasswordStrength(strongPassword);
 
-        // Assert: Não deve lançar exceção
     }
 
     @Test
     public void testValidUserType() {
-        assertTrue(RequestValidator.isValidUserType("USER")); // Deve retornar true
-        assertTrue(RequestValidator.isValidUserType("ADMIN")); // Deve retornar true
-        assertTrue(RequestValidator.isValidUserType("admin")); // Deve retornar true (case insensitive)
-        assertFalse(RequestValidator.isValidUserType("GUEST")); // Deve retornar false
-        assertFalse(RequestValidator.isValidUserType("")); // Deve retornar false (string vazia)
-        assertFalse(RequestValidator.isValidUserType(null)); // Deve retornar false (null)
+        assertTrue(RequestValidator.isValidUserType("USER")); 
+        assertTrue(RequestValidator.isValidUserType("ADMIN")); 
+        assertTrue(RequestValidator.isValidUserType("admin"));
+        assertFalse(RequestValidator.isValidUserType("GUEST"));
+        assertFalse(RequestValidator.isValidUserType(""));
+        assertFalse(RequestValidator.isValidUserType(null)); 
     }
 
         @Test
     public void testValidateFields_ThrowException_WhenFieldIsNull() {
-        // Arrange
-        TestRequest request = new TestRequest(null, "valid.email@example.br");
+        
+        TestRequest request = new TestRequest(null, "valid.email@example.com");
         List<String> requiredFields = Arrays.asList("name", "email");
 
-        // Act & Assert
+
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             RequestValidator.validateFields(request, requiredFields);
         });
 
-        // Verifica se a exceção lançada é a esperada
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertEquals("The required field 'name' is empty.", exception.getReason());
+        assertEquals("O campo obrigatorio 'name' esta vazio.", exception.getReason());
     }
 
     @Test
     public void testValidateFields_ThrowException_WhenFieldDoesNotExist() {
-        // Arrange
-        TestRequest request = new TestRequest("Valid Name", "valid.email@example.br");
+        TestRequest request = new TestRequest("Valid Name", "valid.email@example.com");
         List<String> requiredFields = Arrays.asList("name", "email", "nonExistentField");
 
-        // Act & Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             RequestValidator.validateFields(request, requiredFields);
         });
 
-        // Verifica se a exceção lançada é a esperada
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         
         String reason = Optional.ofNullable(exception.getReason()).orElse("");
@@ -152,7 +135,7 @@ public class RequestValidatorTest {
 
     @Test
     void testValidateFields_ValidEmail() {
-        TestRequest request = new TestRequest("John Doe", "john.doe@example.br");
+        TestRequest request = new TestRequest("John Doe", "john.doe@example.com");
         List<String> requiredFields = Arrays.asList("name", "email");
 
         assertDoesNotThrow(() -> RequestValidator.validateFields(request, requiredFields));

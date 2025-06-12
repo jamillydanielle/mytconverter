@@ -32,20 +32,20 @@ public class UserJWTAuthenticationFilter extends OncePerRequestFilter {
         @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        String token = recoveryToken(request); // Recupera o token do cabeçalho Authorization da requisição
-        System.out.println("criatura!!!");
-        System.out.println(token);
+        if (request.getRequestURI().equals("/users/createUser") && request.getMethod().equals("POST")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = recoveryToken(request);
+        
         
         if (token != null) {
             try {
-                var loggedUser = jwtTokenService.getUserFromToken(token); // Cria um UserDetails com o usuário encontrado
+                var loggedUser = jwtTokenService.getUserFromToken(token); 
                 
-                // Cria um objeto de autenticação do Spring Security
                 Authentication authentication =
                         new UsernamePasswordAuthenticationToken(loggedUser, null, loggedUser.getAuthorities());
-
-                // Define o objeto de autenticação no contexto de segurança do Spring Security
-
                 
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -55,10 +55,9 @@ public class UserJWTAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        filterChain.doFilter(request, response); // Continua o processamento da requisição0
+        filterChain.doFilter(request, response);
     }
 
-    // Recupera o token do cabeçalho Authorization da requisição
     private String recoveryToken(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
 

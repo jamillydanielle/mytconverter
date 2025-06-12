@@ -1,0 +1,1 @@
+![Sketch](utils/sketch.svg)

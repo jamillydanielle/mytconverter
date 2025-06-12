@@ -23,9 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Utility class for handling JWT tokens and user authentication
- */
+
 @Component
 public class JwtUtils {
 
@@ -123,7 +121,6 @@ public class JwtUtils {
             
             UserData userData = objectMapper.readValue(userDataJson, UserData.class);
             
-            // Set authentication in SecurityContext if not already set
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 Authentication authentication = createAuthentication(userData);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -146,14 +143,12 @@ public class JwtUtils {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         
              
-        // Add user type as authority
         if (userData.getUser() != null && userData.getUser().getType() != null) {
             String type = userData.getUser().getType();
             authorities.add(new SimpleGrantedAuthority("TYPE_" + type.toUpperCase()));
         }
         
               
-        // Add additional authorities from token if available
         if (userData.getAuthorities() != null) {
             for (Authority authority : userData.getAuthorities()) {
                 authorities.add(new SimpleGrantedAuthority(authority.getAuthority()));
@@ -161,15 +156,20 @@ public class JwtUtils {
         }
         
         return new UsernamePasswordAuthenticationToken(
-                userData.getUser(), // Principal
-                null, // Credentials (not needed after authentication)
-                authorities // Authorities
+                userData.getUser(), 
+                null, 
+                authorities 
         );
     }
 
-    /**
-     * Data class for user information from JWT token
-     */
+    public static boolean isLogedUser() {
+        if(!getCurrentUserData().isPresent()) return false;
+        
+        return getCurrentUserData()
+            .get().isAccountNonExpired();
+    }
+
+   
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -184,9 +184,7 @@ public class JwtUtils {
         private Authority[] authorities;
     }
 
-    /**
-     * Data class for user details
-     */
+ 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -199,9 +197,7 @@ public class JwtUtils {
         private boolean active;
     }
 
-    /**
-     * Data class for authority information
-     */
+  
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

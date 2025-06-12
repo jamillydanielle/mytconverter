@@ -33,10 +33,9 @@ public class GlobalExceptionHandler {
         Class<?> requiredType = ex.getRequiredType();
         
         Map<String, Object> errorDetails = new HashMap<>();
-        errorDetails.put("error", "Invalid value for field: " + fieldName);
+        errorDetails.put("error", "Valor invalido para o campo: " + fieldName);
         errorDetails.put("providedValue", invalidValue);
         
-        // Se o requiredType for o enum, liste os valores válidos:
         if (requiredType != null && requiredType.isEnum()) {
             Object[] enumConstants = requiredType.getEnumConstants();
             errorDetails.put("validOptions", enumConstants);
@@ -51,7 +50,7 @@ public class GlobalExceptionHandler {
         
         errorResponse.put("status", HttpStatus.BAD_REQUEST.toString());
         if(ex.getMessage().contains("No enum constant")){
-            errorResponse.put("error", "One or more enum values are incorrect, please check your request body.");
+            errorResponse.put("error", "Um ou mais valores enum estao incorretos, por favor verifique o corpo da requisicao.");
         }else{
             errorResponse.put("error", ex.getMessage());
         }
@@ -64,15 +63,13 @@ public class GlobalExceptionHandler {
         Throwable cause = ex.getCause();
         Map<String, Object> errorDetails = new HashMap<>();
         
-        // Verifica se a causa é uma exceção de formatação inválida (InvalidFormatException)
         if (cause instanceof InvalidFormatException) {
             InvalidFormatException ife = (InvalidFormatException) cause;
             Class<?> targetType = ife.getTargetType();
             
-            errorDetails.put("error", "Invalid value for type convertion");
+            errorDetails.put("error", "Valor invalido para conversao de tipo");
             errorDetails.put("providedValue", ife.getValue());
             
-            // Se o tipo alvo for um enum, adiciona as opções válidas
             if (targetType != null && targetType.isEnum()) {
                 Object[] validValues = targetType.getEnumConstants();
                 errorDetails.put("validOptions", validValues);

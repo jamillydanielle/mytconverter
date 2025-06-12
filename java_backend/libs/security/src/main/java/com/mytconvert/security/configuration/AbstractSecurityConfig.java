@@ -16,9 +16,8 @@ public abstract class AbstractSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .anonymous(anonymous -> anonymous.disable())
-            .csrf(csrf -> csrf.disable()) // Desabilita CSRF, habilite conforme necessário
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
-                 // Permite acesso público
                 .anyRequest().permitAll()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

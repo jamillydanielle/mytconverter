@@ -62,7 +62,6 @@ public class JwtService {
         }
     }
 
-    // Método para verificar e extrair informações do token, se necessário
     public UserAuthenticated getUserFromToken(String token) throws JsonProcessingException {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
@@ -75,4 +74,6 @@ public class JwtService {
 
         return new ObjectMapper().readValue(userJson, UserAuthenticated.class);
     }
+
+    
 }

@@ -20,7 +20,6 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 @Service
 public class JwtTokenService {
 
-    // Injetando as propriedades do application.properties
     @Value("${jwt.secret_key}")
     private String secretKey;
 
@@ -28,16 +27,15 @@ public class JwtTokenService {
     private String issuer;
 
     public String generateToken(UserInterface user) throws JsonProcessingException, IllegalArgumentException, JWTCreationException {
-        // Define o algoritmo HMAC SHA256 para criar a assinatura do token passando a chave secreta definida
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
         return JWT.create()
-            .withIssuer(issuer) // Define o emissor do token
-            .withIssuedAt(creationDate()) // Define a data de emissão do token
-            .withExpiresAt(expirationDate()) // Define a data de expiração do token
-            .withSubject(user.getEmail()) // Define o assunto do token (neste caso, o nome de usuário)
+            .withIssuer(issuer)
+            .withIssuedAt(creationDate())
+            .withExpiresAt(expirationDate())
+            .withSubject(user.getEmail())
             .withClaim("user", new ObjectMapper().writeValueAsString(user))
-            .sign(algorithm); // Assina o token usando o algoritmo especificado
+            .sign(algorithm);
     }
 
     public LoggedUser getUserFromToken(String token) throws JsonMappingException, JsonProcessingException, JWTVerificationException {
@@ -45,9 +43,9 @@ public class JwtTokenService {
 
         return new ObjectMapper().readValue(
             JWT.require(algorithm)
-                .withIssuer(issuer) // Define o emissor do token
+                .withIssuer(issuer)
                 .build()
-                .verify(token) // Verifica a validade do token
+                .verify(token) 
                 .getClaim("user")
                 .asString(),
             LoggedUser.class
