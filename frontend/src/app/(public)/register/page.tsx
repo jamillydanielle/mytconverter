@@ -1,8 +1,7 @@
-// app/(auth)/register/page.tsx
 import AppLayout from '@/components/layout/AppLayout';
-import RegisterForm from '@/components/auth/RegisterForm'; // Seu componente de formulário de registro
+import RegisterForm from '@/components/auth/RegisterForm'; 
 import type { Metadata } from 'next';
-import { Box, Container } from '@mui/material'; // Opcional
+import { Box, Container } from '@mui/material';
 
 export const metadata: Metadata = {
   title: 'Criar Conta - Meu Conversor',
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <AppLayout sidebarState="register"> {/* Define o estado da sidebar para a página de registro */}
+    <AppLayout sidebarState="register"> 
       <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', pt: { xs: 2, md: 4 } }}>
         <RegisterForm />
       </Container>

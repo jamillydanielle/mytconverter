@@ -1,4 +1,3 @@
-// components/layout/AppLayout.tsx
     import React from 'react';
     import Sidebar from './Sidebar';
     import Box from '@mui/material/Box';

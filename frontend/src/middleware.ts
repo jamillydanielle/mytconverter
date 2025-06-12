@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { User } from "@/types";
-import { DecodedToken, UserData } from "@/utils/jwtDecoder";
+import { DecodedToken } from "@/utils/jwtDecoder";
 
 export function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
   const currentPath = req.nextUrl.pathname;
 
-  console.log("Current path:", currentPath);
 
   // Se a requisição for para um asset público ou a rota raiz, permite o acesso
   if (/\.(jpg|jpeg|png|gif|svg)$/.test(currentPath) || currentPath === "/") {
@@ -16,11 +15,9 @@ export function middleware(req: NextRequest) {
 
   // Usuário não autenticado: Acesso apenas a /register, /login e /users/createUser
   if (!token) {
-    if (currentPath === "/register" || currentPath === "/login" || currentPath === '/users/users/createUser') { // Changed /users/createUser to /createUser
-      console.log(`Permitindo acesso a ${currentPath} para usuário não autenticado`);
+    if (currentPath === "/register" || currentPath === "/login" || currentPath === '/users/users/createUser') {
       return NextResponse.next();
     } else {
-      console.log("Redirecionando usuário não autenticado para /login");
       return NextResponse.redirect(new URL("/login", req.url));
     }
   }
@@ -33,7 +30,6 @@ export function middleware(req: NextRequest) {
         console.error("Token inválido ou sem informações do usuário.");
         return NextResponse.redirect(new URL("/login", req.url));
     }
-    const userData: UserData = JSON.parse(decodedToken.user);
 
 
     userType = decodedToken.scope?.toUpperCase();
@@ -42,27 +38,21 @@ export function middleware(req: NextRequest) {
       throw new Error("Tipo de usuário não encontrado no token");
     }
 
-    console.log("User type:", userType);
   } catch (error) {
-    console.error("Erro ao decodificar o token:", error);
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
   // Controle de acesso baseado no tipo de usuário
   if (userType === "ADMIN") {
     // ADMIN tem acesso a tudo, então não há restrições aqui.
-    console.log("Admin acessando:", currentPath);
     return NextResponse.next(); // Permitir acesso
   } else if (userType === "USER") {
     if (currentPath.startsWith("/users")) {
-      console.log("Acesso negado a /users para USER, redirecionando para /myconvertions");
       return NextResponse.redirect(new URL("/myconvertions", req.url));
     }
-    console.log("User acessando:", currentPath);
     return NextResponse.next(); // Permitir acesso a outras rotas
   } else {
     // Tipo de usuário inválido
-    console.log("Tipo de usuário inválido, redirecionando para /myconvertions");
     return NextResponse.redirect(new URL("/myconvertions", req.url));
   }
 }

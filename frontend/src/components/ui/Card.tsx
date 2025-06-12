@@ -1,4 +1,3 @@
-// components/ui/Card.tsx
     import React from 'react';
     import MuiCard, { CardProps as MuiCardProps } from '@mui/material/Card';
     import CardActionArea from '@mui/material/CardActionArea';

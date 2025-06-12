@@ -160,7 +160,11 @@ Siga estes passos para configurar e rodar o projeto:
 
     3.  **Faça Login como Administrador:** Use as credenciais do administrador (admin@example.com e a senha que você acabou de criar) para fazer login no sistema.
 
-    4.  **Crie Usuários via Interface:** Depois de logado como administrador, use a interface do frontend para criar novos usuários com diferentes roles.
+    4.  **Crie Usuários via Interface:** Pode criar usuarios(USER) diretamente pela UI
 
 
-    ANALISAR ADICIONAR METRICAS AO ADM
+    ANALISAR ADICIONAR METRICAS AO ADM, como numero de minutos total de conversoes, numero total de conversoes mp3 e mp4, modalidade favorita(mp3 ou  mp4)
+
+    ANALISAR ADICIONAR UMA PAGINA DE FEEDBACK PARA O USER QUE PODE SER CONSULTADA PELO ADM
+
+    ANALISAR ADICIONAR FUNCIONALIDADE DE RECUPERACAO DE SENHA POR EMAIL, VEJA SE DA PRA USAR JSON CRIPTOGRAFADO ENVIADO POR LINK PARA AUTENTICAR A RECUPERACAO

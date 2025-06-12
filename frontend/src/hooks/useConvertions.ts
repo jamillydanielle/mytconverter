@@ -1,4 +1,3 @@
-// frontend/src/hooks/useConvertions.ts
 import { useState, useEffect, useCallback } from 'react';
 import { Convertion } from '@/types/Convertion';
 import { getConvertions } from '@/services/Convertions.service';
@@ -9,7 +8,7 @@ export const useConvertions = () => {
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const pageSize = 10; // Or make this configurable
+    const pageSize = 10; 
 
     const fetchConvertions = useCallback(async (page: number) => {
         try {
@@ -22,7 +21,7 @@ export const useConvertions = () => {
         } finally {
             setLoading(false);
         }
-    }, [pageSize]); // pageSize as a dependency
+    }, [pageSize]);
 
     useEffect(() => {
         fetchConvertions(currentPage);

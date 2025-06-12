@@ -7,7 +7,7 @@ interface UsersResponse {
 }
 
 export const createUser = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
-    const response = await fetchWrapper<User>('/users/users/createUser', { // or /users/users, adjust to backend endpoint
+    const response = await fetchWrapper<User>('/users/users/createUser', {
         method: 'POST',
         body: JSON.stringify(user)
     });

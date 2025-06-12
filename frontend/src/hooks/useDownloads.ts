@@ -1,0 +1,92 @@
+
+import { useState, useCallback } from 'react';
+import { downloadMedia, getFile } from '@/services/Convertions.service';
+import { useSessionIdentifier } from '@/hooks/useSessionIdentifier';
+import { FileInput } from 'lucide-react';
+
+interface DownloadResult {
+  successMessage: string;
+  error: string;
+  loading: boolean;
+  fileName: string | null;
+  internalFileName: string | null;
+  download: (url: string, format: 'mp3' | 'mp4') => Promise<void>;
+  handleDownloadClick: () => void;
+}
+
+export const useDownload = (): DownloadResult => {
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [internalFileName, setInternalFileName] = useState<string | null>(null);
+  const { userData } = useSessionIdentifier();
+
+
+  const handleDownloadClick = useCallback(async () => {
+    if (internalFileName) {
+      try {
+        setLoading(true);
+        const blob = await getFile(internalFileName);
+
+        // Cria um link para download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName || internalFileName; 
+        document.body.appendChild(a); 
+        a.click();
+        a.remove();
+
+        window.URL.revokeObjectURL(url);
+
+      } catch (err: any) {
+        console.error("Erro ao baixar o arquivo:", err);
+        setError('Erro ao baixar o arquivo.');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      console.error("Tentativa de download sem nome de arquivo", { internalFileName });
+      setError("Nome do arquivo não disponível para download.");
+    }
+  }, [internalFileName, fileName]);
+
+
+  const download = useCallback(async (url: string, format: 'mp3' | 'mp4') => {
+    setError('');
+    setSuccessMessage('');
+    setFileName(null);
+    setInternalFileName(null);
+    setLoading(true);
+
+    try {
+      // Obter o link de download e o nome do arquivo da API
+      const response = await downloadMedia(url, format);
+
+
+      // Importante: definir todos os estados em uma única atualização de renderização
+      const fileNameValue = response.data.file_name;
+      const InternalFileNameValue = response.data.internal_filename;
+      // Atualizar os estados com os valores obtidos
+      setFileName(fileNameValue);
+      setInternalFileName(InternalFileNameValue);
+      setSuccessMessage('Seu download está pronto!');
+
+    } catch (err: any) {
+      setError('Erro ao tentar baixar o vídeo. Verifique a URL ou tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return {
+    successMessage,
+    error,
+    loading,
+    fileName,
+    internalFileName,
+    download,
+    handleDownloadClick
+  };
+};
