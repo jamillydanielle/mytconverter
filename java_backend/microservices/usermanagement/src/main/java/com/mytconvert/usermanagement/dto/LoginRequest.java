@@ -10,7 +10,6 @@ public class LoginRequest {
     private String password;
     private boolean rememberMe;
 
-    // Getters e Setters
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 

@@ -11,10 +11,8 @@ import java.util.Map;
 import com.mytconvert.usermanagement.entity.UserType;
 
 public class RequestValidator {
-    // Regex para validação de email
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     
-    // Método para validar o email
     public static boolean isValidEmail(String email) {
         Pattern pattern = Pattern.compile(EMAIL_REGEX);
         Matcher matcher = pattern.matcher(email);
@@ -38,11 +36,11 @@ public class RequestValidator {
         try {
             for (String fieldName : requiredFields) {
                 Field field = requestObject.getClass().getDeclaredField(fieldName);
-                field.setAccessible(true); // Permite acessar campos privados
+                field.setAccessible(true);
                 Object value = field.get(requestObject);
                 if (value == null || (value instanceof String && ((String) value).trim().isEmpty())) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "The required field '" + fieldName + "' is empty.");
+                        "O campo obrigatorio '" + fieldName + "' esta vazio.");
                 }
 
                 if (fieldName.equals("email")) {
@@ -61,13 +59,12 @@ public class RequestValidator {
         }
     }
 
-    // Método para validar campos em um Map
     public static void validateFieldsForMap(Map<String, String> requestMap, List<String> requiredFields) {
         for (String fieldName : requiredFields) {
             Object value = requestMap.get(fieldName);
             if (value == null || (value instanceof String && ((String) value).trim().isEmpty())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "The required field '" + fieldName + "' is empty.");
+                    "O campo obrigatorio '" + fieldName + "' esta vazio.");
             }
 
             if (fieldName.equals("email")) {
@@ -80,13 +77,12 @@ public class RequestValidator {
     }
     
     public static void validatePasswordStrength(String password) {
-        // Verifica se a senha tem entre 8 e 16 caracteres,
-        // pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.
+       
         String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,16}$";
         
         if (!password.matches(passwordRegex)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "The provided password is too weak. Please ensure it includes at least one number, one uppercase letter, one lowercase letter, and have length between 8 and 16 characters.");
+                "A senha fornecida e muito fraca. Por favor garanta que a senha incua pelo menos um numero, uma letra maiuscula, uma letra minuscula e tenha entre 8 e 16 caracteres.");
         }
     }
 }

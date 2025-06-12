@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional // Para garantir que cada teste é isolado
+@Transactional
 class UserControllerTest {
 
     @Autowired
@@ -35,10 +35,9 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Limpar e adicionar um usuário ao banco de dados em memória antes de cada teste
         userRepository.deleteAll();
-        User user = new User("John Doe", "john@example.br", "password", UserType.USER);
-        userRepository.save(user); // Persistir o usuário no banco de dados em memória
+        User user = new User("John Doe", "john@example.com", "password", UserType.USER);
+        userRepository.save(user);
     }
 
     private User createTestUser(String name, String email, String type) {
@@ -57,7 +56,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(username = "user", roles = {"ADMIN"})
     void testCheckUser() throws Exception {
-        String username = "john@example.br";
+        String username = "john@example.com";
 
         mockMvc.perform(get("/users/checkUser")
                 .param("username", username))
@@ -79,7 +78,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void testGetUserById() throws Exception {
-        Long userId = userRepository.findAll().get(0).getId(); // Obter o ID do usuário persistido
+        Long userId = userRepository.findAll().get(0).getId();
 
         mockMvc.perform(get("/users/list/" + userId))
                 .andExpect(status().isOk())
@@ -87,30 +86,28 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user", roles = {"ADMIN"})
     void testCreateUser() throws Exception {
-        String payload = "{ \"name\": \"Jane Doe\", \"email\": \"jane@example.br\",\"type\": \"USER\" }";
+        String payload = "{ \"name\": \"Jane Doe\", \"email\": \"jane@example.com\",\"password\": \"Password123*\" }";
 
         mockMvc.perform(post("/users/createUser")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message", containsString("User created")))
+                .andExpect(jsonPath("$.message", containsString("Usuario cadastrado")))
                 .andExpect(jsonPath("$.userName", is("Jane Doe")));
     }
 
     @Test
-    @WithMockUser(username = "user", roles = {"ADMIN"})
     void createUser_ExistingEmail() throws Exception {
-        createTestUser("Jane Doe", "jane@example.br", "USER");
+        createTestUser("Jane Doe", "jane@example.com", "USER");
 
-        String payload = "{ \"name\": \"Jane Doe\", \"email\": \"jane@example.br\", \"type\": \"USER\"}";
+        String payload = "{ \"name\": \"Jane Doe\", \"email\": \"jane@example.com\", \"password\": \"password\"}";
 
         mockMvc.perform(post("/users/createUser")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", containsString("This email already belongs to another user.")));
+                .andExpect(jsonPath("$.error", containsString("Este email pertence a outro usuario")));
     }
 
    
@@ -118,9 +115,9 @@ class UserControllerTest {
     @Test
     @WithMockUser(username = "user", roles = {"ADMIN"})
     void testUpdateUser() throws Exception {
-        User user = createTestUser("John Doe", "john1@example.br", "USER");
+        User user = createTestUser("John Doe", "john1@example.com", "USER");
 
-        String payload = "{ \"name\": \"John Updated\", \"email\": \"joh1n@example.br\", \"type\": \"USER\"}";
+        String payload = "{ \"name\": \"John Updated\", \"email\": \"joh1n@example.com\", \"password\": \"password\"}";
 
         mockMvc.perform(put("/users/edit/" + user.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -133,16 +130,16 @@ class UserControllerTest {
     @Test
     @WithMockUser(username = "user", roles = { "ADMIN" })
     void editUser_ExistingEmail() throws Exception {
-        createTestUser("Jane Doe", "jane@example.br", "USER");
-        User editUser = createTestUser("Jane Doe", "jane1@example.br", "USER");
+        createTestUser("Jane Doe", "jane@example.com", "USER");
+        User editUser = createTestUser("Jane Doe", "jane1@example.com", "USER");
 
-        String payload = "{ \"name\": \"Jane Doe\", \"email\": \"jane@example.br\", \"type\": \"USER\"}";
+        String payload = "{ \"name\": \"Jane Doe\", \"email\": \"jane@example.com\", \"password\": \"password\"}";
 
         mockMvc.perform(put("/users/edit/" + editUser.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", containsString("This email already belongs to another user.")));
+                .andExpect(jsonPath("$.error", containsString("Este email pertence a outro usuario")));
     }
   
     @Test
@@ -167,15 +164,12 @@ class UserControllerTest {
     @Test
     @WithMockUser(username = "user", roles = {"ADMIN"})
     void testActivateUser() throws Exception {
-        // Obter o ID do usuário persistido
         Long userId = userRepository.findAll().get(0).getId();
 
-        // Desativar o usuário primeiro, para que possamos testá-lo sendo ativado
         mockMvc.perform(put("/users/" + userId + "/deactivate"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("John Doe")));
 
-        // Agora tente ativar o usuário
         mockMvc.perform(put("/users/" + userId + "/activate"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("John Doe")));
@@ -183,92 +177,37 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "user", roles = {"ADMIN"})
-    void testCreateLocalAdminUser() throws Exception {
-        String payload = "{ \"name\": \"Admin User\", \"email\": \"admi@example.br\", \"type\": \"ADMIN\" }";
-
-        mockMvc.perform(post("/users/local-admin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(payload))
-                .andExpect(status().isCreated())
-                .andExpect(content().string(containsString("Local admin user created successfully: Admin User")));
-    }
-
-    @Test
-    @WithMockUser(username = "user", roles = {"ADMIN"})
-    void testCreateLocalAdminUserWithExistingEmail() throws Exception {
-        // Primeiro, crie um usuário admin
-        createTestUser("Admin", "admi@example.br",  "ADMIN");
-
-        String payload = "{ \"name\": \"Admin User\", \"email\": \"admi@example.br\", \"type\": \"ADMIN\" }";
-
-        // Tente criar outro usuário com o mesmo email
-        mockMvc.perform(post("/users/local-admin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(payload))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("An admin user with this email already exists.")));
-    }
-
-    @Test
-    @WithMockUser(username = "user", roles = {"ADMIN"})
     void checkAllPossibleEmptyFieldsWhenCreatingOrUpdatingUsers() throws Exception {
         String name = "Jane Doe";
-        String email = "jane@example.br";
-        String type = "USER";
+        String email = "jane@example.com";
+        String password = "Password123*";
     
 
-        List<String> requiredFields = Arrays.asList("name", "email", "type");
+        List<String> requiredFields = Arrays.asList("name", "email", "password");
     
         for (int i = 0; i < requiredFields.size(); i++) {
             String currentName = (i == 0) ? "" : name;
             String currentEmail = (i == 1) ? "" : email;
-            String currentType = (i == 2) ? "" : type;
+            String currentPassword = (i == 2) ? "" : password;
     
             String payload = String.format(
-                "{ \"name\": \"%s\", \"email\": \"%s\", \"type\": \"%s\"}",
+                "{ \"name\": \"%s\", \"email\": \"%s\", \"password\": \"%s\"}",
                 currentName,
                 currentEmail,
-                currentType
+                currentPassword
             );
     
             mockMvc.perform(post("/users/createUser")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("The required field '" + requiredFields.get(i) + "' is empty."));
+                .andExpect(jsonPath("$.error").value("O campo obrigatorio '" + requiredFields.get(i) + "' esta vazio."));
 
             mockMvc.perform(put("/users/edit/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("The required field '" + requiredFields.get(i) + "' is empty."));
-        }
-    }
-
-    @Test
-    @WithMockUser(username = "user", roles = {"ADMIN"})
-    void checkAllPossibleEmptyFieldsWhenCreatingAdmin() throws Exception {
-        String name = "Jane Doe";
-        String email = "jane@example.br";
-
-        List<String> requiredFields = Arrays.asList("name", "email");
-    
-        for (int i = 0; i < requiredFields.size(); i++) {
-            String currentName = (i == 0) ? "" : name;
-            String currentEmail = (i == 1) ? "" : email;
-            
-    
-            String payload = String.format(
-                "{ \"name\": \"%s\", \"email\": \"%s\"}",
-                currentName,
-                currentEmail
-            );
-    
-            mockMvc.perform(post("/users/local-admin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(payload))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("The required field '" + requiredFields.get(i) + "' is empty."));
+                .andExpect(jsonPath("$.error").value("O campo obrigatorio '" + requiredFields.get(i) + "' esta vazio."));
         }
     }
 }

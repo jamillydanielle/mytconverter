@@ -8,27 +8,36 @@ export async function fetchWrapper<T>(
     endpoint: string,
     options: RequestInit = {}
 ): Promise<T> {
-    const token = getToken();
-    const decodedUser = decodeJwtToken();
+    let headers: HeadersInit | undefined = {}; // Initialize headers as undefined
 
-    const defaultHeaders = {
-        "Authorization": `Bearer ${token}`,
-        "UserData": `${decodedUser}`,
-        "Content-Type": "application/json"
-    };
+    if (!(options.method === 'POST' && endpoint === '/users/users/createUser')) {
+        const token = getToken();
+        const decodedUser = decodeJwtToken();
+
+        const defaultHeaders = {
+            "Authorization": `Bearer ${token}`,
+            "UserData": `${decodedUser}`,
+            "Content-Type": "application/json"
+        };
+
+        headers = {
+            ...defaultHeaders,
+            ...options.headers
+        };
+    } else {
+        headers = {
+            "Content-Type": "application/json" // Only Content-Type for createUser
+        };
+    }
 
     const mergedOptions: RequestInit = {
         ...options,
-        headers: {
-            ...defaultHeaders,
-            ...options.headers
-        }
+        headers: headers
     };
 
     const response = await fetch(`${baseUrl}${endpoint}`, mergedOptions);
-
     if (response.status === 401) {
-        alert("Unauthorized access. Please log in again.");
+        alert("Acesso nao autorizado. Por favor faça o login novamente.");
         removeToken();
         window.location.href = "/login";
         return {} as T;

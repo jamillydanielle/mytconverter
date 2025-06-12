@@ -22,22 +22,25 @@ public class UserClaimsAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-
         @NonNull HttpServletRequest request,
         @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        String claim = request.getHeader("x-user"); // recupera dados do usuario do header
+        if (request.getRequestURI().equals("/users/createUser") && request.getMethod().equals("POST")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
+        String claim = request.getHeader("x-user"); 
         
         if (claim != null) {
             try {
-                var loggedUser = new ObjectMapper().readValue(claim, LoggedUser.class); // Cria um UserDetails com o usuário encontrado
+                var loggedUser = new ObjectMapper().readValue(claim, LoggedUser.class); 
 
-                // Cria um objeto de autenticação do Spring Security
                 Authentication authentication =
                         new UsernamePasswordAuthenticationToken(loggedUser, null, loggedUser.getAuthorities());
 
-                // Define o objeto de autenticação no contexto de segurança do Spring Security
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JsonParseException e) {
                 response.sendError(401);
@@ -46,7 +49,7 @@ public class UserClaimsAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        filterChain.doFilter(request, response); // Continua o processamento da requisição0
+        filterChain.doFilter(request, response); 
     }
 
 }

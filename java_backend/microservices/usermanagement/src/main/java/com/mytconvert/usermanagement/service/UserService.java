@@ -32,28 +32,22 @@ public class UserService {
         validateUserCreation(user);
         
     
-        // Define informações de criação e atualização
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
     
-        // Codifica a senha
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);       
          
-        // Salva o usuário no repositório
         return userRepository.save(user);
     }
 
-    // Método para atualizar um usuário existente
     public User updateUser(Long id, User userDetails) {
         validateUserUpdate(id, userDetails);
 
-        // Busca o usuário existente pelo ID
         User user = userRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario nao encontrado"));
 
 
-        // Atualiza os detalhes do usuário
         user.setName(userDetails.getName());
         user.setEmail(userDetails.getEmail());
         user.setType(userDetails.getType());
@@ -66,17 +60,16 @@ public class UserService {
     private void validateUserCreation(User user) {
         boolean userExists = findByEmail(user.getEmail()).isPresent();
         if (userExists) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This email already belongs to another user.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este email pertence a outro usuario");
         }
     }
 
     private void validateUserUpdate(Long id, User userDetails) {
         if (isEmailTakenByAnotherUser(id, userDetails.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This email already belongs to another user.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este email pertence a outro usuario");
         }
     }
 
-    // Verifica se o email já pertence a outro usuário
     public boolean isEmailTakenByAnotherUser(Long userId, String email) {
         Optional<User> existingUser = userRepository.findByEmail(email);
         return existingUser.isPresent() && !existingUser.get().getId().equals(userId);
@@ -96,10 +89,10 @@ public class UserService {
 
     public User deactivateUser(Long id) {
         User user = userRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario nao encontrado"));
 
         if (!user.isActive()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is already deactivated.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este usuario ja foi desativado");
         }
 
         user.setDeactivatedAt(LocalDateTime.now());
@@ -109,31 +102,26 @@ public class UserService {
 
     public User activateUser(Long id) {
         User user = userRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario nao encontrado"));
     
         if (user.isActive()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is already active.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este usuario ja esta ativo.");
         }
     
-        user.setDeactivatedAt(null); // Remove a data de desativação
+        user.setDeactivatedAt(null);
         user.setUpdatedAt(LocalDateTime.now());
         return userRepository.save(user);
     }
 
-    // List users with pagination
     public Page<User> listUsers(Pageable pageable) {
         return userRepository.findByDeactivatedAtIsNullAndTypeNot(pageable, UserType.ADMIN);
     }
 
-
-    // Retrieve a user by ID
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
-    // Delete a user by ID
     public boolean deleteUser(Long id) {
-        // Check if the user exists
         if (!userRepository.existsById(id)) {
             return false;
         }
@@ -142,31 +130,28 @@ public class UserService {
     }
     
     
-    public User createAdminUser(String name, String email) {
-        System.out.println("entrou no medo create admin");
+    public User createAdminUser(String name, String email, String password) {
         Optional<User> existingAdmin = userRepository.findByEmail(email);
         if (existingAdmin.isPresent()) {
-            // Lança uma exceção com status 400 se o email já existir
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "An admin user with this email already exists.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Um administrador com esse email ja foi cadastrado");
         }
     
         
-        String password = passwordEncoder.encode("password");
+        String encodedPassword = passwordEncoder.encode(password);
     
         User adminUser = new User(
             name,
             email,
-            password,
+            encodedPassword,
             UserType.ADMIN
         );
         User createdUser = userRepository.save(adminUser);
-        System.out.println("Created User: " + createdUser);
         return createdUser;
     }
 
     public void changePassword(String email, String newPassword) {
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+            .orElseThrow(() -> new UsernameNotFoundException("Nao ha nenhum usuario com o email: " + email));
         
         String encodedPassword = passwordEncoder.encode(newPassword);
         user.setPassword(encodedPassword);

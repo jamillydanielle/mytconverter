@@ -14,6 +14,7 @@ import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mytconvert.usermanagement.dto.ChangePasswordRequest;
 import com.mytconvert.usermanagement.dto.LoginRequest;
 import com.mytconvert.usermanagement.entity.User;
+import com.mytconvert.usermanagement.entity.UserType;
 import com.mytconvert.usermanagement.service.AuthService;
 import com.mytconvert.usermanagement.service.PasswordNeedsChangeException;
 import com.mytconvert.usermanagement.service.UserService;
@@ -34,12 +36,11 @@ import com.mytconvert.usermanagement.utils.RequestValidator;
 public class AuthController {
     private final AuthService authService;
     private final UserService userService;
-    private static final String USER_NOT_FOUND = "User not found";
-    private static final String INVALID_CREDENTIALS = "The username or password is incorrect. Please try again.";
-    private static final String ACCOUNT_DISABLED = "Account disabled";
-    private static final String ACCOUNT_LOCKED = "Account locked";
-    private static final String CREDENTIALS_EXPIRED = "Credentials expired";
-    private static final String INTERNAL_ERROR = "Internal server error";
+    private static final String USER_NOT_FOUND = "Usuario nao encontrado";
+    private static final String INVALID_CREDENTIALS = "Email ou senha estao incorretos. Tente novamente.";
+    private static final String ACCOUNT_DISABLED = "Conta desativada";
+    private static final String ACCOUNT_LOCKED = "Conta travada";
+    private static final String CREDENTIALS_EXPIRED = "Credenciais expiradas";
 
     @Autowired
     public AuthController(AuthService authService, UserService userService) {
@@ -68,13 +69,13 @@ public class AuthController {
                 String token = authService.authenticate(loginRequest);
                 Map<String, String> response = new HashMap<>();
                 response.put("token", token);
-                response.put("message", "Login successful");
+                response.put("message", "Login realizado com sucesso");
                 return ResponseEntity.ok(response);
             } catch (PasswordNeedsChangeException e) {
                 String token = e.getToken();
                 Map<String, String> response = new HashMap<>();
                 response.put("token", token);
-                response.put("message", "Password needs to be changed");
+                response.put("message", "A senha precisa ser trocada");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             } catch (LockedException e) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(createErrorResponse(ACCOUNT_LOCKED));
@@ -89,12 +90,44 @@ public class AuthController {
     } catch (Exception e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(createErrorResponse("An unexpected error occurred: " + e.getMessage()));
+                             .body(createErrorResponse("Ocorreu um erro inesperado: " + e.getMessage()));
     }
 }
 
+    @PostMapping("/createUser")
+    public ResponseEntity<String> createUser(@RequestBody Map<String, String> payload) {
+        
+        List<String> requiredFields = Arrays.asList("name", "email", "password");
+        RequestValidator.validateFieldsForMap(payload, requiredFields);
 
-    @PutMapping("/change-password/{email}")
+        String userName = payload.get("name");
+        String userEmail = payload.get("email");
+        String senha = payload.get("password");
+
+        User user = new User(userName, userEmail, senha, UserType.USER);
+
+        User createdUser = userService.createUser(user);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("{\"message\": \"Usuario cadastrado\", \"userName\": \"" + createdUser.getName() + "\"}");
+    }
+
+@GetMapping("/is-logged-in")
+    public ResponseEntity<Map<String, Boolean>> isLoggedIn() {
+        
+        Map<String, Boolean> response = new HashMap<>();
+        boolean isLoggedUser = authService.isLoggedIn();
+        if (isLoggedUser) {
+            response.put("isLoggedIn", isLoggedUser);
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("isLoggedIn", isLoggedUser);
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    
+@PutMapping("/change-password/{email}")
     public ResponseEntity<?> changePassword(@PathVariable String email, @RequestBody ChangePasswordRequest request) {
         List<String> requiredFields = Arrays.asList("newPassword");
         RequestValidator.validateFields(request, requiredFields);
@@ -102,7 +135,7 @@ public class AuthController {
     
         try {
             userService.changePassword(email, request.getNewPassword());
-            return ResponseEntity.ok(createSuccessResponse("Password updated successfully."));
+            return ResponseEntity.ok(createSuccessResponse("Senha atualizada com sucesso."));
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(USER_NOT_FOUND));
         }

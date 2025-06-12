@@ -31,8 +31,8 @@ export const useLoginForm = () => {
 
     const validateInput = useCallback(() => {
         if (credentials.email.trim() === "" || (!changePassword && credentials.password.trim() === "")) {
-            addAlert("Please insert email and password", "error")
-            setError("Please insert email and password");
+            addAlert("Informe email e senha", "error")
+            setError("Informe email e senha");
             return false;
         }
         if (changePassword && !validatePasswords()) {

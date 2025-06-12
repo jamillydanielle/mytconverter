@@ -21,7 +21,6 @@ public class EmailService {
     @Autowired
     private JavaMailSender emailSender;
 
-    // Secret key for encryption
     @Value("${secret_key}")
     private String secretKeyString;
     
@@ -37,7 +36,7 @@ public class EmailService {
         try {
             emailSender.send(mensagem);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error sending email.");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Falha ao enviar email.");
         }
     }
 }

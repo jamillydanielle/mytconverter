@@ -33,11 +33,11 @@ import java.util.Date;
 @AutoConfigureMockMvc
 public class AuthControllerTest {
 
-    private static final String USER_NOT_FOUND = "User not found";
-    private static final String INVALID_CREDENTIALS = "The username or password is incorrect. Please try again.";
-    private static final String ACCOUNT_DISABLED = "Account disabled";
-    private static final String ACCOUNT_LOCKED = "Account locked";
-    private static final String CREDENTIALS_EXPIRED = "Credentials expired";
+    private static final String USER_NOT_FOUND = "Usuario nao encontrado";
+    private static final String INVALID_CREDENTIALS = "Email ou senha estao incorretos. Tente novamente.";
+    private static final String ACCOUNT_DISABLED = "Conta desativada";
+    private static final String ACCOUNT_LOCKED = "Conta travada";
+    private static final String CREDENTIALS_EXPIRED = "Credenciais expiradas";
     private static final String INTERNAL_ERROR = "Internal server error";
 
     @Autowired
@@ -47,7 +47,7 @@ public class AuthControllerTest {
     private String issuer;
 
     @Autowired
-    private UserRepository userRepository; // Inject repository to persist test data
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder encoder;
@@ -61,25 +61,22 @@ public class AuthControllerTest {
 
     private LoginRequest loginRequest;
 
-    private String payloadCreateTestUser = "{ \"name\": \"Jane Doe\", \"email\": \"jane@example.br\", \"type\": \"USER\" \"\" }";
+    private String payloadCreateTestUser = "{ \"name\": \"Jane Doe\", \"email\": \"jane@example.com\", \"type\": \"USER\" \"\" }";
 
     @BeforeEach
     public void setUp() {
-        // Clear the database before each test to ensure a clean state
         userRepository.deleteAll();
 
-        // Hashes the password
         String password = encoder.encode("1234");
 
         loginRequest = new LoginRequest();
-        loginRequest.setEmail("john.doe@example.br");
+        loginRequest.setEmail("john.doe@example.com");
         loginRequest.setPassword("1234");
         loginRequest.setRememberMe(false);
 
-        // Create a test user and save it in the database
         user = new User(
                 "John Doe",
-                "john.doe@example.br",
+                "john.doe@example.com",
                 password,
                 UserType.ADMIN);
         userRepository.save(user);
@@ -106,13 +103,12 @@ public class AuthControllerTest {
         String password = encoder.encode("1234");
         User testUser = new User(
                 "John Doe",
-                "john1.doe@example.br",
+                "john1.doe@example.com",
                 password,
                 UserType.ADMIN);
 
         userRepository.save(testUser);
 
-        // Scenario 1: Valid password
         ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
         changePasswordRequest.setNewPassword("New@Secure123");
 
@@ -121,26 +117,23 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Password updated successfully."));
+                .andExpect(jsonPath("$.message").value("Senha atualizada com sucesso."));
 
-        // Scenario 2: User does not exist
         mockMvc.perform(
-                put("/auth/change-password/nonexistent@example.br")
+                put("/auth/change-password/nonexistent@example.com")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("User not found"));
+                .andExpect(jsonPath("$.message").value("Usuario nao encontrado"));
 
-        // Scenario 3: Empty password
         changePasswordRequest.setNewPassword("");
         mockMvc.perform(
                 put("/auth/change-password/{email}", user.getEmail())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("The required field 'newPassword' is empty."));
+                .andExpect(jsonPath("$.error").value("O campo obrigatorio 'newPassword' esta vazio."));
 
-        // Scenario 4: Weak password
         changePasswordRequest.setNewPassword("weak");
         mockMvc.perform(
                 put("/auth/change-password/{email}", user.getEmail())
@@ -148,14 +141,13 @@ public class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(
-                        "The provided password is too weak. Please ensure it includes at least one number, one uppercase letter, one lowercase letter, and have length between 8 and 16 characters."));
+                        "A senha fornecida e muito fraca. Por favor garanta que a senha incua pelo menos um numero, uma letra maiuscula, uma letra minuscula e tenha entre 8 e 16 caracteres."));
     }
 
-    // Testa o login e verifica se o token foi gerado
     @Test
     public void testLogin() throws Exception {
 
-        loginRequest.setEmail("john.doe@example.br");
+        loginRequest.setEmail("john.doe@example.com");
         loginRequest.setPassword("1234");
         loginRequest.setRememberMe(false);
 
@@ -163,16 +155,14 @@ public class AuthControllerTest {
                 post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk()) // Verifica se o status Ã© 200
-                .andExpect(content().string(not(emptyOrNullString()))); // Verifica se o token estÃ¡ presente no JSON de
-                                                                        // resposta
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(emptyOrNullString())));
     }
 
-    // Teste que verifica se o issuer do token Ã© vÃ¡lido
     @Test
     public void testTokenValidIssuer() throws Exception {
 
-        loginRequest.setEmail("john.doe@example.br");
+        loginRequest.setEmail("john.doe@example.com");
         loginRequest.setPassword("1234");
         loginRequest.setRememberMe(false);
 
@@ -180,10 +170,9 @@ public class AuthControllerTest {
                 post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk()) // Verifica se o status eh 200
-                .andExpect(content().string(not(emptyOrNullString()))) // Verifica se o token estÃ¡ presente no JSON de
-                                                                       // resposta
-                .andReturn().getResponse().getContentAsString(); // ObtÃ©m o token
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(emptyOrNullString())))
+                .andReturn().getResponse().getContentAsString();
 
         String token = jsonResponse.split("\"token\":\"")[1].split("\"")[0];
 
@@ -191,11 +180,10 @@ public class AuthControllerTest {
         assertEquals(issuer, tokenIssuer);
     }
 
-    // Teste que verifica se o subject do token Ã© vÃ¡lido
     @Test
     public void testTokenValidSubject() throws Exception {
 
-        loginRequest.setEmail("john.doe@example.br");
+        loginRequest.setEmail("john.doe@example.com");
         loginRequest.setPassword("1234");
         loginRequest.setRememberMe(false);
 
@@ -203,21 +191,19 @@ public class AuthControllerTest {
                 post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk()) // Verifica se o status Ã© 200
-                .andExpect(content().string(not(emptyOrNullString()))) // Verifica se o token estÃ¡ presente no JSON de
-                                                                       // resposta
-                .andReturn().getResponse().getContentAsString(); // ObtÃ©m o token
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(emptyOrNullString())))
+                .andReturn().getResponse().getContentAsString();
 
         String token = jsonResponse.split("\"token\":\"")[1].split("\"")[0];
         String tokenSubject = getTokenSubject(token);
         assertEquals(loginRequest.getEmail(), tokenSubject);
     }
 
-    // Teste que verifica se o token nÃ£o estÃ¡ expirado
     @Test
     public void testTokenNotExpired() throws Exception {
 
-        loginRequest.setEmail("john.doe@example.br");
+        loginRequest.setEmail("john.doe@example.com");
         loginRequest.setPassword("1234");
         loginRequest.setRememberMe(false);
 
@@ -225,21 +211,19 @@ public class AuthControllerTest {
                 post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk()) // Verifica se o status Ã© 200
-                .andExpect(content().string(not(emptyOrNullString()))) // Verifica se o token estÃ¡ presente no JSON de
-                                                                       // resposta
-                .andReturn().getResponse().getContentAsString(); // ObtÃ©m o token
+                .andExpect(status().isOk()) 
+                .andExpect(content().string(not(emptyOrNullString()))) 
+                .andReturn().getResponse().getContentAsString();
 
         String token = jsonResponse.split("\"token\":\"")[1].split("\"")[0];
         Date tokenExpiresAt = getTokenExpiration(token);
         assertTrue(tokenExpiresAt.after(new Date()));
     }
 
-    // Teste que verifica se o token estÃ¡ expirado
     @Test
     public void testTokenExpired() throws Exception {
 
-        loginRequest.setEmail("john.doe@example.br");
+        loginRequest.setEmail("john.doe@example.com");
         loginRequest.setPassword("1234");
         loginRequest.setRememberMe(false);
 
@@ -247,27 +231,21 @@ public class AuthControllerTest {
                 post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk()) // Verifica se o status Ã© 200
-                .andExpect(content().string(not(emptyOrNullString()))) // Verifica se o token estÃ¡ presente no JSON de
-                                                                       // resposta
-                .andReturn().getResponse().getContentAsString(); // ObtÃ©m o token
+                .andExpect(status().isOk()) 
+                .andExpect(content().string(not(emptyOrNullString()))) 
+                .andReturn().getResponse().getContentAsString(); 
 
         String token = jsonResponse.split("\"token\":\"")[1].split("\"")[0];
         Date tokenExpiresAt = getTokenExpiration(token);
-        LocalDateTime mockDate = LocalDateTime.of(2026, 10, 15, 10, 0); // Data futura mockada
+        LocalDateTime mockDate = LocalDateTime.of(2026, 10, 15, 10, 0);
 
-        assertFalse(tokenExpiresAt.after(Date.from(mockDate.atZone(ZoneId.systemDefault()).toInstant()))); // ComparaÃ§Ã£o
-                                                                                                           // da data do
-                                                                                                           // token com
-                                                                                                           // a data
-                                                                                                           // futura
-                                                                                                           // mockada
+        assertFalse(tokenExpiresAt.after(Date.from(mockDate.atZone(ZoneId.systemDefault()).toInstant()))); 
     }
 
     @Test
     public void testLoginUserNotFound() throws Exception {
 
-        loginRequest.setEmail("not_found@example.br");
+        loginRequest.setEmail("not_found@example.com");
         loginRequest.setPassword("1234");
         loginRequest.setRememberMe(false);
 

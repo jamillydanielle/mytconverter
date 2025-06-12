@@ -27,24 +27,23 @@ public class UsermanagementApplication {
 @Bean
 public CommandLineRunner createAdminUserRunner() {
     return args -> {
-        System.out.println("Arguments received: " + String.join(", ", args));
         
         List<String> filteredArgs = Arrays.stream(args)
             .filter(arg -> !arg.startsWith("--"))
             .collect(Collectors.toList());
         
         if (filteredArgs.size() >= 2 && "create-admin".equals(filteredArgs.get(0))) {
-            createAdminUser(filteredArgs.get(1), filteredArgs.get(2));
+            createAdminUser(filteredArgs.get(1), filteredArgs.get(2), filteredArgs.get(3));
         } else {
             System.out.println("Application started normally. Use 'create-admin' command to create an admin user.");
         }
     };
 }
 
-    private void createAdminUser(String name, String email) {
+    private void createAdminUser(String name, String email, String password) {
         try {
-            User newAdmin = userService.createAdminUser(name, email);
-            System.out.println("Admin user created successfully: " + newAdmin);
+            User newAdmin = userService.createAdminUser(name, email, password);
+            System.out.println("Admin Usuario cadastrado com sucesso: " + newAdmin);
         } catch (ResponseStatusException e) {
             System.out.println("Error creating admin user: " + e.getReason());
         } catch (Exception e) {
