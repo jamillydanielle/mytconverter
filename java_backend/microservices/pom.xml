@@ -16,7 +16,6 @@
 
     <modules>
         <module>usermanagement</module>
-        <module>convertions</module>
         <module>emailsender</module>
     </modules>
 

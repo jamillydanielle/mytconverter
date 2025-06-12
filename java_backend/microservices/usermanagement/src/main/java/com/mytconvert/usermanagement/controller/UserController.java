@@ -1,6 +1,5 @@
 package com.mytconvert.usermanagement.controller;
 
-import com.mytconvert.usermanagement.dto.AdminUserCreationRequest;
 import com.mytconvert.usermanagement.dto.UserData;
 import com.mytconvert.usermanagement.entity.User;
 import com.mytconvert.usermanagement.entity.UserType;
@@ -31,20 +30,17 @@ import java.util.stream.Collectors;
 public class UserController {
     private final UserService userService;
 
-    // Construtor que inicializa o userService
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    // Cadastro de Usuários
     @PostMapping("/createUser")
     public ResponseEntity<String> createUser(@RequestBody Map<String, String> payload) {
-
+        
         List<String> requiredFields = Arrays.asList("name", "email", "password");
         RequestValidator.validateFieldsForMap(payload, requiredFields);
 
-        // Populate user fields from payload
         String userName = payload.get("name");
         String userEmail = payload.get("email");
         String senha = payload.get("password");
@@ -54,7 +50,7 @@ public class UserController {
         User createdUser = userService.createUser(user);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body("{\"message\": \"User created\", \"userName\": \"" + createdUser.getName() + "\"}");
+                .body("{\"message\": \"Usuario cadastrado\", \"userName\": \"" + createdUser.getName() + "\"}");
     }
 
     @GetMapping("/checkUser")
@@ -138,19 +134,17 @@ public class UserController {
      * @param user o objeto do usuário com os novos dados
      * @return um ResponseEntity contendo o usuário atualizado ou 404 Not Found
      */
-    @PutMapping("/edit/{id}") // Mapeia para PUT em /users/{id}
+    @PutMapping("/edit/{id}")
     public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody Map<String, String> payload) {
 
-        List<String> requiredFields = Arrays.asList("name", "email", "type");
+        List<String> requiredFields = Arrays.asList("name", "email", "password");
         RequestValidator.validateFieldsForMap(payload, requiredFields);
 
-        // Populate user fields from payload
         String userName = payload.get("name");
         String userEmail = payload.get("email");
-        String typeStr = payload.get("type");
         String senhaPadrao = "password";
 
-        User user = new User(userName, userEmail, senhaPadrao, UserType.valueOf(typeStr));
+        User user = new User(userName, userEmail, senhaPadrao, UserType.USER);
 
         User updatedUser = userService.updateUser(id, user);
 
@@ -169,7 +163,7 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         boolean deleted = userService.deleteUser(id);
         if (deleted) {
-            return ResponseEntity.noContent().build(); // HTTP 204 No Content
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.status(404).build();
     }
@@ -185,6 +179,4 @@ public class UserController {
         User activateUser = userService.activateUser(id);
         return ResponseEntity.ok(activateUser);
     }
-
-   
 }

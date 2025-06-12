@@ -27,7 +27,6 @@ public class UsermanagementApplication {
 @Bean
 public CommandLineRunner createAdminUserRunner() {
     return args -> {
-        System.out.println("Arguments received: " + String.join(", ", args));
         
         List<String> filteredArgs = Arrays.stream(args)
             .filter(arg -> !arg.startsWith("--"))
@@ -44,7 +43,7 @@ public CommandLineRunner createAdminUserRunner() {
     private void createAdminUser(String name, String email, String password) {
         try {
             User newAdmin = userService.createAdminUser(name, email, password);
-            System.out.println("Admin user created successfully: " + newAdmin);
+            System.out.println("Admin Usuario cadastrado com sucesso: " + newAdmin);
         } catch (ResponseStatusException e) {
             System.out.println("Error creating admin user: " + e.getReason());
         } catch (Exception e) {

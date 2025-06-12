@@ -50,17 +50,15 @@ public class User {
     @Column
     private LocalDateTime deactivatedAt;
 
-    // Método executado automaticamente antes de persistência no banco de dados
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now(); // Define a data de criação
-        updatedAt = LocalDateTime.now(); // Define a data de modificação inicial
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
-    // Método executado automaticamente antes de atualização no banco de dados
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now(); // Atualiza a data de modificação
+        updatedAt = LocalDateTime.now();
     }
 
     public User(String name, String email, String password, UserType type) {

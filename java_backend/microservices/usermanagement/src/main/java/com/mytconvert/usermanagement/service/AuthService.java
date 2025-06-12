@@ -1,6 +1,7 @@
 package com.mytconvert.usermanagement.service;
 
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.mytconvert.security.utils.JwtUtils;
 import com.mytconvert.usermanagement.dto.LoginRequest;
 import com.mytconvert.usermanagement.security.UserAuthenticated;
 import com.mytconvert.usermanagement.security.UserDetailsServiceImpl;
@@ -36,7 +37,7 @@ public class AuthService {
         if (passwordEncoder.matches("password", userDetails.getPassword())) {
             UserAuthenticated userAuthenticated = (UserAuthenticated) userDetails;
             String token =  jwtService.generateToken(userAuthenticated, loginRequest.isRememberMe());
-            throw new PasswordNeedsChangeException("Password needs to be changed", token);
+            throw new PasswordNeedsChangeException("A senha precisa ser trocada", token);
         }
         
         try {
@@ -49,5 +50,14 @@ public class AuthService {
 
         UserAuthenticated userAuthenticated = (UserAuthenticated) userDetails;
         return jwtService.generateToken(userAuthenticated, loginRequest.isRememberMe());
+    }
+
+    public boolean isLoggedIn() { 
+        try {
+            return JwtUtils.isLogedUser();
+
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
