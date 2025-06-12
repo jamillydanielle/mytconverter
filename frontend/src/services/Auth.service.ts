@@ -48,7 +48,6 @@ export const loginUser = async (
   rememberMe: boolean
 ): Promise<LoginUserResponse> => {
   try {
-    //Essa rota ainda nao esta criada no backend
     const response = await fetch("http://localhost:3001/users/auth/login", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
@@ -60,7 +59,7 @@ export const loginUser = async (
     if (!response.ok) {
       if (
         response.status === 403 &&
-        data.message === "Password needs to be changed"
+        data.message === "A senha precisa ser trocada"
       ) {
         return { token: data.token || "", message: data.message };
       }

@@ -1,4 +1,3 @@
-// frontend/src/app/(private)/users/page.tsx
 "use client";
 
 import AppLayout from '@/components/layout/AppLayout';

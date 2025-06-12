@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import { AlertProvider } from "@/components/alert/AlertProvider"; // Seu AlertProvider

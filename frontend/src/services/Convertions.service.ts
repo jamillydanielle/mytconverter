@@ -1,37 +1,53 @@
-// frontend/src/services/Convertion.service.ts
-
 import { Convertion } from "@/types/Convertion";
-import { fetchWrapper } from "@/providers/fetchApi"; // Import fetchWrapper
+import { fetchWrapper } from "@/providers/fetchApi";
 
 interface GetConvertionsResponse {
     content: Convertion[];
     totalPages: number;
     totalElements: number;
-    // Add other properties from your API response if needed
 }
 
-export const getConvertions = async (page: number = 0, size: number = 10): Promise<GetConvertionsResponse> => {
+interface DownloadResponse {
+    data: {
+        internal_filename: string;
+        file_name: string;
+    }
+}
+
+export const downloadMedia = async (url: string, format: 'mp3' | 'mp4'): Promise<DownloadResponse> => {
     try {
-        const response = await fetchWrapper<GetConvertionsResponse>(`/convertions/convertions/getConvertions?page=${page}&size=${size}`, { // Adjust the URL
-            method: 'GET',
-        });
+        const response = await fetchWrapper<DownloadResponse>(
+            '/converter/converter/download',
+            {
+                method: 'POST',
+                body: JSON.stringify({ url, format }),
+            }
+        );
+
         return response;
     } catch (error) {
-        console.error("Erro ao buscar conversões:", error);
-        throw error; // Re-throw for the component to handle
+        console.error("Erro ao solicitar o download:", error);
+        throw error;
     }
 };
 
-// Example POST Method for Creating a Convertion.
-export const createConvertion = async (convertionData: Omit<Convertion, 'id' | 'createdAt' | 'updatedAt' | 'user_name'>): Promise<Convertion> => {
+export const getFile = async (internalFileName: string): Promise<Blob> => {
     try {
-        const response = await fetchWrapper<Convertion>(`/convertions/convertions/createConvertion`, { // Adjust the URL
-            method: 'POST',
-            body: JSON.stringify(convertionData),
-        });
+        const response = await fetchWrapper<Blob>(
+            `/converter/converter/file/${internalFileName}`,
+            {
+                method: 'GET',
+                responseType: 'blob'
+            }
+        );
+
         return response;
-    } catch (error) {
-        console.error("Erro ao criar conversão:", error);
+
+
+    } catch (error: any) {
+        if (error.response) {
+            console.error("[getFile] Response status:", error.response.status);
+        }
         throw error;
     }
 };

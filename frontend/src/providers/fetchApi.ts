@@ -4,36 +4,49 @@ import { jwtDecode } from "jwt-decode";
 
 const baseUrl: string = "http://localhost:3001";
 
+interface CustomRequestInit extends RequestInit {
+    responseType?: 'json' | 'blob';
+}
+
+
 export async function fetchWrapper<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: CustomRequestInit = {}
 ): Promise<T> {
-    let headers: HeadersInit | undefined = {}; // Initialize headers as undefined
 
-    if (!(options.method === 'POST' && endpoint === '/users/users/createUser')) {
-        const token = getToken();
-        const decodedUser = decodeJwtToken();
 
-        const defaultHeaders = {
-            "Authorization": `Bearer ${token}`,
-            "UserData": `${decodedUser}`,
-            "Content-Type": "application/json"
-        };
+    const token = getToken();
 
-        headers = {
-            ...defaultHeaders,
-            ...options.headers
+    let mergedOptions: RequestInit = { ...options };
+
+    const defaultHeaders: HeadersInit = {
+        "Authorization": `Bearer ${token}`,
+    };
+
+    if (options.method?.toUpperCase() === 'POST' && endpoint === '/users/users/createUser') {
+        const { Authorization, ...remainingHeaders } = defaultHeaders;
+        mergedOptions = {
+            ...options,
+            headers: {
+                ...remainingHeaders,
+                ...options.headers,
+                'Content-Type': 'application/json'
+            },
         };
     } else {
-        headers = {
-            "Content-Type": "application/json" // Only Content-Type for createUser
+        if (options.body && !options.headers?.['Content-Type']) {
+            defaultHeaders['Content-Type'] = 'application/json';
+        }
+
+        mergedOptions = {
+            ...options,
+            headers: {
+                ...defaultHeaders,
+                ...options.headers,
+            },
         };
     }
 
-    const mergedOptions: RequestInit = {
-        ...options,
-        headers: headers
-    };
 
     const response = await fetch(`${baseUrl}${endpoint}`, mergedOptions);
     if (response.status === 401) {
@@ -44,21 +57,21 @@ export async function fetchWrapper<T>(
     }
 
     if (!response.ok) {
-        let errorData: any = { message: `Request failed with status ${response.status}` }; // Fallback
+        let errorData: any = { message: `Request failed with status ${response.status}` };
         try {
             errorData = await response.json();
         } catch (e) {
             console.warn("Failed to parse error response as JSON:", e);
         }
         if (response.status !== 409) {
-            console.error(
+            console.log(
                 `API Error (Status: ${response.status}):`,
                 errorData.message || errorData.error || errorData
             );
         }
 
         const error = new Error(
-            errorData.message || errorData.error || `An error occurred (Status: ${response.status})`
+            errorData.message || errorData.error || `Ocorreu um erro (Status: ${response.status})`
         ) as any;
         error.status = response.status;
         error.data = errorData;
@@ -66,10 +79,12 @@ export async function fetchWrapper<T>(
         throw error;
     }
 
-
     if (response.status === 204) {
-        return undefined as T; // Or return null as T;
+        return undefined as T; 
     }
 
-    return response.json();
+    if (options.responseType === 'blob') {
+        return await response.blob() as T;
+    }
+    return await response.json() as T;
 }

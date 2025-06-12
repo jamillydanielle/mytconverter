@@ -3,26 +3,27 @@
 import { Headphones, Activity, Clock, Layers } from 'lucide-react';
 import { useCallback } from 'react';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
-export interface Feature { // Added export here
-  icon: React.ComponentType; // Change to store the component type
+export interface Feature { 
+  icon: React.ComponentType; 
   title: string;
   actionKey: string;
   onClick: () => void;
 }
 
 const useMyConvertionsFeatures = () => {
+  const router = useRouter();
+
   const handleFeatureClick = useCallback((featureName: string) => {
-    alert(`Funcionalidade "${featureName}" clicada!`);
-    // Add navigation or action logic here
   }, []);
 
   const features: Feature[] = [
     {
-      icon: Headphones,  // Store the component type (no JSX here)
+      icon: Headphones,  
       title: "Nova Conversão",
       actionKey: "converter",
-      onClick: () => handleFeatureClick("Nova Conversão"),
+      onClick: () => router.push('/myconvertions/newconvertion'),
     },
     {
       icon: Activity,

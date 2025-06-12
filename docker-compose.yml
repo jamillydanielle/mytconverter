@@ -1,24 +1,6 @@
 version: '3.8'
 
 services:
-  convertions:
-      build:
-        context: ./java_backend
-        args:
-          SERVICE_NAME: convertions
-      environment:
-        - DB_HOST=db
-        - DB_PORT=5432
-        - DB_USER=postgres
-        - DB_PASS=root
-        - JWT_SECRET_KEY=s/4KMb61LOrMYYAn4rfaQYSgr+le5SMrsMzKw8G6bXc=
-        - JWT_ISSUER=user-api
-        - SERVICE_NAME=convertions
-      depends_on:
-        - db
-      ports:
-        - "8081:8081"
-
   usermanagement:
     build:
       context: ./java_backend
@@ -57,7 +39,6 @@ services:
     depends_on:
       - db
       - usermanagement
-      - convertions
     ports:
       - "8085:8085"
 
@@ -85,5 +66,21 @@ services:
       - /app/node_modules
     depends_on:
       - usermanagement
-      - convertions
     command: npm run start:dev
+
+  converter:
+    build:
+      context: ./python_backend
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: converter
+    environment:
+      - DATABASE_URL=postgresql://postgres:root@db:5432/database
+      - JWT_SECRET_KEY=s/4KMb61LOrMYYAn4rfaQYSgr+le5SMrsMzKw8G6bXc=
+      - JWT_ISSUER=user-api
+    volumes:
+      - ./python_backend:/app
+    depends_on:
+      - db
+    ports:
+      - "8081:8081" 

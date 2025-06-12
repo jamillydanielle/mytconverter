@@ -1,4 +1,3 @@
-// components/CustomAlert.tsx
 import React from 'react';
 import { Box, BoxProps } from '@mui/material';
 import { SxProps, Theme } from '@mui/system';
