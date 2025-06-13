@@ -103,7 +103,7 @@ const accessControl = (req: Request, res: Response, next: NextFunction) => {
 
 
 app.use('/users', createProxyMiddleware({
-    target: process.env.USER_MANAGEMENT_API || 'http://usermanagement:8080',
+    target: process.env.USER_MANAGEMENT_API || 'http://datamanagement:8080',
     changeOrigin: true,
     pathRewrite: {
         '^/users/users(.*)$': '/users$1',

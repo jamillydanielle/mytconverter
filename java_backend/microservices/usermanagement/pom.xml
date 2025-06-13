@@ -11,7 +11,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>usermanagement</artifactId>
+    <artifactId>datamanagement</artifactId>
 
     <build>
     <plugins>
@@ -20,7 +20,7 @@
             <artifactId>spring-boot-maven-plugin</artifactId>
             <configuration>
                 <!-- Specify the main class you want to use -->
-                <mainClass>com.mytconvert.usermanagement.UsermanagementApplication</mainClass>
+                <mainClass>com.mytconvert.datamanagement.datamanagementApplication</mainClass>
             </configuration>
         </plugin>
     </plugins>

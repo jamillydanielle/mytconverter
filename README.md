@@ -3,7 +3,7 @@
 
 O sistema é composto pelos seguintes microsserviços:
 
-*   **`usermanagement` (Java):** Gerencia as operações relacionadas a usuários, como criação, autenticação e autorização.
+*   **`datamanagement` (Java):** Gerencia as operações relacionadas a usuários, como criação, autenticação e autorização.
 *   **`convertion` (Java):** Responsável por criar e gerenciar as conversoes do youtube.
 *   **`emailsender` (Java):** Envia e-mails.
 *   **`gateway` (Node.js):** Atua como um ponto de entrada para o sistema, roteando requisições para os microsserviços apropriados.
@@ -145,11 +145,11 @@ Siga estes passos para configurar e rodar o projeto:
 
 3.  **Criar um Administrador:**
 
-    Para criar um usuário administrador no sistema, você precisa executar um comando dentro do container `usermanagement`.  Primeiro, identifique o nome ou ID do container `usermanagement` usando `docker ps`.  Em seguida, execute o seguinte comando, substituindo `[nome do container ou id]` pelo valor correto:
+    Para criar um usuário administrador no sistema, você precisa executar um comando dentro do container `datamanagement`.  Primeiro, identifique o nome ou ID do container `datamanagement` usando `docker ps`.  Em seguida, execute o seguinte comando, substituindo `[nome do container ou id]` pelo valor correto:
 
     ```bash
-    podman exec -it mytconverter-usermanagement-1 bash
-    java -jar usermanagement.jar create-admin "Administrador mytconvert" admin@example.com "Password123*" --server.port=0
+    podman exec -it mytconverter-datamanagement-1 bash
+    java -jar datamanagement.jar create-admin "Administrador mytconvert" admin@example.com "Password123*" --server.port=0
     ```
 
 4.  **Acessar e Configurar o Sistema:**
