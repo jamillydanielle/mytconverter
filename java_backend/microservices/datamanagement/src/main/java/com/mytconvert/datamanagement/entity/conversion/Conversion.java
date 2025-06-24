@@ -44,24 +44,29 @@ public class Conversion {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private Long length; // New attribute for media length
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
 
     // Constructor for direct entity creation
-    public Conversion(User requester, String internalFileName, ConversionFormat format) {
+    public Conversion(User requester, String internalFileName, ConversionFormat format, Long length) {
         this.requester = requester;
         this.internalFileName = internalFileName;
         this.format = format;
+        this.length = length;
     }
 
     // Constructor for JWT user conversion - this needs to be properly implemented
-    public Conversion(com.mytconvert.security.utils.JwtUtils.User jwtUser, String internalFileName, ConversionFormat format) {
+    public Conversion(com.mytconvert.security.utils.JwtUtils.User jwtUser, String internalFileName, ConversionFormat format, Long length) {
         // Note: In a real implementation, you would need to convert the JWT user to an entity User
         // This might require a user repository lookup
         this.internalFileName = internalFileName;
         this.format = format;
+        this.length = length;
         // The requester should be set after looking up the User entity
     }
 }
