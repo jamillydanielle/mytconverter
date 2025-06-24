@@ -19,7 +19,7 @@ const RootRedirect = () => {
                     if (userType === 'ADMIN') {
                         router.push('/admin/users');
                     } else if (userType === 'USER') {
-                        router.push('/myconvertions');
+                        router.push('/myconversions');
                     } else {
                         console.error('Tipo de usuário desconhecido no token (scope):', decoded.scope);
                         router.push('/login'); // Fallback se o scope não for reconhecido

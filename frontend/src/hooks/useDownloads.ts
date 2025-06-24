@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { downloadMedia, getFile } from '@/services/Convertions.service';
+import { downloadMedia, getFile } from '@/services/Conversions.service';
 import { useSessionIdentifier } from '@/hooks/useSessionIdentifier';
 import { FileInput } from 'lucide-react';
 

@@ -6,7 +6,7 @@ import { DownloadForm } from '@/components/download/DownloadForm';
 import { useDownload } from '@/hooks/useDownloads';
 import AppLayout from '@/components/layout/AppLayout';
 
-const NewConvertionPage = () => {
+const NewConversionPage = () => {
   const {
     download,
     loading,
@@ -41,4 +41,4 @@ const NewConvertionPage = () => {
   );
 };
 
-export default NewConvertionPage;
+export default NewConversionPage;

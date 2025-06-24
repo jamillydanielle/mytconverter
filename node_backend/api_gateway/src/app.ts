@@ -119,7 +119,7 @@ app.use('/users', createProxyMiddleware({
 }));
 
 app.use('/converter', createProxyMiddleware({
-    target: process.env.CONVERTION_API || 'http://converter:8081',
+    target: process.env.CONVERSION_API || 'http://converter:8081',
     changeOrigin: true,
     pathRewrite: {
         '^/converter/converter(.*)$': '/converter$1'

@@ -1,4 +1,4 @@
-package com.mytconvert.datamanagement.controller.convertion;
+package com.mytconvert.datamanagement.controller.conversion;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,23 +14,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mytconvert.datamanagement.entity.convertion.Convertion;
-import com.mytconvert.datamanagement.service.convertion.ConvertionService;
+import com.mytconvert.datamanagement.entity.conversion.Conversion;
+import com.mytconvert.datamanagement.service.conversion.ConversionService;
 import com.mytconvert.datamanagement.utils.RequestValidator;
 
 @RestController
-@RequestMapping("/convertions")
-public class ConvertionController {
+@RequestMapping("/conversions")
+public class ConversionController {
     
-    private final ConvertionService convertionService;
+    private final ConversionService conversionService;
 
     @Autowired
-    public ConvertionController(ConvertionService convertionService) {
-        this.convertionService = convertionService;
+    public ConversionController(ConversionService conversionService) {
+        this.conversionService = conversionService;
     }
 
-    @PostMapping("/createConvertion")
-    public ResponseEntity<String> createConvertion(@RequestBody Map<String, String> payload) {
+    @PostMapping("/createConversion")
+    public ResponseEntity<String> createConversion(@RequestBody Map<String, String> payload) {
         
         List<String> requiredFields = Arrays.asList("internal_file_name", "format");
         RequestValidator.validateFieldsForMap(payload, requiredFields);
@@ -38,16 +38,9 @@ public class ConvertionController {
         String internalFileName = payload.get("internal_file_name");
         String format = payload.get("format");
 
-        Convertion createdConvertion = convertionService.createConvertion(internalFileName, format);
+        Conversion createdConversion = conversionService.createConversion(internalFileName, format);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body("{\"message\": \"Conversao cadastrada\", \"id\": \"" + createdConvertion.getId() + "\"}");
+                .body("{\"message\": \"Conversao cadastrada\", \"id\": \"" + createdConversion.getId() + "\"}");
     }
-
-    @GetMapping("/checkUser")
-    public ResponseEntity<?> checkUser(@RequestParam String username) {
-        boolean userExists = convertionService.findByEmail(username).isPresent();
-        return ResponseEntity.ok().body(userExists);
-    }
-
 }

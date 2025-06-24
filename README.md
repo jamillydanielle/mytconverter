@@ -4,7 +4,7 @@
 O sistema é composto pelos seguintes microsserviços:
 
 *   **`datamanagement` (Java):** Gerencia as operações relacionadas a usuários, como criação, autenticação e autorização.
-*   **`convertion` (Java):** Responsável por criar e gerenciar as conversoes do youtube.
+*   **`conversion` (Java):** Responsável por criar e gerenciar as conversoes do youtube.
 *   **`emailsender` (Java):** Envia e-mails.
 *   **`gateway` (Node.js):** Atua como um ponto de entrada para o sistema, roteando requisições para os microsserviços apropriados.
 *   **`db` (PostgreSQL):** Banco de dados relacional para armazenar dados persistentes.

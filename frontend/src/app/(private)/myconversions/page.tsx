@@ -3,11 +3,11 @@
 import React from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import FeatureCard from '@/components/dashboard/FeatureCard';
-import useMyConvertionsFeatures, { Feature } from '@/hooks/useMyConvertionsFeatures'; // Corrected import
+import useMyConversionsFeatures, { Feature } from '@/hooks/useMyConversionsFeatures'; // Corrected import
 import { Grid, Box, Divider, Typography } from '@mui/material';
 
-const MyConvertionsPage = () => {
-  const { features } = useMyConvertionsFeatures();
+const MyConversionsPage = () => {
+  const { features } = useMyConversionsFeatures();
 
   return (
     <AppLayout sidebarState="dashboard">
@@ -33,4 +33,4 @@ const MyConvertionsPage = () => {
   );
 };
 
-export default MyConvertionsPage;
+export default MyConversionsPage;

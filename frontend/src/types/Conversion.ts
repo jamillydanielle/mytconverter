@@ -1,4 +1,4 @@
-export interface Convertion {
+export interface Conversion {
   id?: number | string;
   url: string;
   user_name: String;

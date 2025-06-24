@@ -12,7 +12,7 @@ export interface Feature {
   onClick: () => void;
 }
 
-const useMyConvertionsFeatures = () => {
+const useMyConversionsFeatures = () => {
   const router = useRouter();
 
   const handleFeatureClick = useCallback((featureName: string) => {
@@ -23,7 +23,7 @@ const useMyConvertionsFeatures = () => {
       icon: Headphones,  
       title: "Nova Conversão",
       actionKey: "converter",
-      onClick: () => router.push('/myconvertions/newconvertion'),
+      onClick: () => router.push('/myconversions/newconversion'),
     },
     {
       icon: Activity,
@@ -48,4 +48,4 @@ const useMyConvertionsFeatures = () => {
   return { features };
 };
 
-export default useMyConvertionsFeatures;
+export default useMyConversionsFeatures;

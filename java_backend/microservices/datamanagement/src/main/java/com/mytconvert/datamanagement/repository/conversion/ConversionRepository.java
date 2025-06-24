@@ -1,4 +1,4 @@
-package com.mytconvert.datamanagement.repository.convertion;
+package com.mytconvert.datamanagement.repository.conversion;
 
 import java.util.Optional;
 
@@ -7,12 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.mytconvert.datamanagement.entity.convertion.Convertion;
+import com.mytconvert.datamanagement.entity.conversion.Conversion;
 
 @Repository
-public interface ConvertionRepository extends JpaRepository<Convertion, Long> {
-    Convertion findByFileName(String fileName);
-    default Convertion findByIdOrThrow(Long id) {
+public interface ConversionRepository extends JpaRepository<Conversion, Long> {
+    Conversion findByInternalFileName(String fileName);
+    
+    default Conversion findByIdOrThrow(Long id) {
         return findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conversao nao encontrada"));
     }
 }

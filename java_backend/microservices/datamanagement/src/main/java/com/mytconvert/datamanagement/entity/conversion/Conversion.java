@@ -1,4 +1,4 @@
-package com.mytconvert.datamanagement.entity.convertion;
+package com.mytconvert.datamanagement.entity.conversion;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,13 +24,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "convertions")
-public class Convertion {
+@Table(name = "conversions")
+public class Conversion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
+    
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "requester_id", nullable = false)
     private User requester;
 
     @Column(nullable = false)
@@ -38,7 +39,7 @@ public class Convertion {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ConvertionFormat format;
+    private ConversionFormat format;
     
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -48,8 +49,19 @@ public class Convertion {
         createdAt = LocalDateTime.now();
     }
 
-    public Convertion(com.mytconvert.security.utils.JwtUtils.User user, String internalFileName2,
-            ConvertionFormat valueOf) {
-        //TODO Auto-generated constructor stub
+    // Constructor for direct entity creation
+    public Conversion(User requester, String internalFileName, ConversionFormat format) {
+        this.requester = requester;
+        this.internalFileName = internalFileName;
+        this.format = format;
+    }
+
+    // Constructor for JWT user conversion - this needs to be properly implemented
+    public Conversion(com.mytconvert.security.utils.JwtUtils.User jwtUser, String internalFileName, ConversionFormat format) {
+        // Note: In a real implementation, you would need to convert the JWT user to an entity User
+        // This might require a user repository lookup
+        this.internalFileName = internalFileName;
+        this.format = format;
+        // The requester should be set after looking up the User entity
     }
 }

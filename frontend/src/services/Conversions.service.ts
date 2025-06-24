@@ -1,8 +1,8 @@
-import { Convertion } from "@/types/Convertion";
+import { Conversion } from "@/types/Conversion";
 import { fetchWrapper } from "@/providers/fetchApi";
 
-interface GetConvertionsResponse {
-    content: Convertion[];
+interface GetConversionsResponse {
+    content: Conversion[];
     totalPages: number;
     totalElements: number;
 }

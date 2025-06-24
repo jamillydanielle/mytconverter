@@ -20,7 +20,7 @@
             <artifactId>spring-boot-maven-plugin</artifactId>
             <configuration>
                 <!-- Specify the main class you want to use -->
-                <mainClass>com.mytconvert.datamanagement.datamanagementApplication</mainClass>
+                <mainClass>com.mytconvert.datamanagement.DataManagementApplication</mainClass>
             </configuration>
         </plugin>
     </plugins>

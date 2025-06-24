@@ -15,13 +15,13 @@ import com.mytconvert.datamanagement.entity.user.User;
 import com.mytconvert.datamanagement.service.user.UserService;
 
 @SpringBootApplication
-public class datamanagementApplication {
+public class DataManagementApplication {
 
     @Autowired
     private UserService userService;
 
     public static void main(String[] args) {
-        SpringApplication.run(datamanagementApplication.class, args);
+        SpringApplication.run(DataManagementApplication.class, args);
     }
 
 @Bean
