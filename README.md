@@ -26,7 +26,7 @@ Siga estes passos para configurar e rodar o projeto:
 1.  **Clonar o Repositório:**
 
     ```bash
-    git clone <URL_DO_SEU_REPOSITORIO>
+    git clone https://github.com/jamillydanielle/mytconverter
     cd <NOME_DO_DIRETORIO_DO_REPOSITORIO>
     ```
 
