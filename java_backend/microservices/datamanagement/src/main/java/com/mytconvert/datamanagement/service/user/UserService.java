@@ -20,10 +20,11 @@ import java.util.Optional;
 @Service
 public class UserService {
 
+    @Autowired
     private final UserRepository userRepository;
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    @Autowired
+    
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }

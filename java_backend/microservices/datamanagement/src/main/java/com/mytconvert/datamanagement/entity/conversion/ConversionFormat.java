@@ -1,6 +1,6 @@
 package com.mytconvert.datamanagement.entity.conversion;
 
 public enum ConversionFormat {
-    mp3,
-    mp4;
+    MP3,
+    MP4;
 }

@@ -60,7 +60,7 @@ public class RequestValidator {
         }
     }
 
-    public static void validateFieldsForMap(Map<String, String> requestMap, List<String> requiredFields) {
+    public static void validateFieldsForMap(Map<String, Object> requestMap, List<String> requiredFields) {
         for (String fieldName : requiredFields) {
             Object value = requestMap.get(fieldName);
             if (value == null || (value instanceof String && ((String) value).trim().isEmpty())) {

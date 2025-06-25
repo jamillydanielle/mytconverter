@@ -36,14 +36,14 @@ public class UserController {
     }
 
     @PostMapping("/createUser")
-    public ResponseEntity<String> createUser(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<String> createUser(@RequestBody Map<String, Object> payload) {
         
         List<String> requiredFields = Arrays.asList("name", "email", "password");
         RequestValidator.validateFieldsForMap(payload, requiredFields);
 
-        String userName = payload.get("name");
-        String userEmail = payload.get("email");
-        String senha = payload.get("password");
+        String userName = (String) payload.get("name");
+        String userEmail = (String) payload.get("email");
+        String senha = (String) payload.get("password");
 
         User user = new User(userName, userEmail, senha, UserType.USER);
 
@@ -135,13 +135,13 @@ public class UserController {
      * @return um ResponseEntity contendo o usuário atualizado ou 404 Not Found
      */
     @PutMapping("/edit/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
 
         List<String> requiredFields = Arrays.asList("name", "email", "password");
         RequestValidator.validateFieldsForMap(payload, requiredFields);
 
-        String userName = payload.get("name");
-        String userEmail = payload.get("email");
+        String userName = (String) payload.get("name");
+        String userEmail = (String) payload.get("email");
         String senhaPadrao = "password";
 
         User user = new User(userName, userEmail, senhaPadrao, UserType.USER);
