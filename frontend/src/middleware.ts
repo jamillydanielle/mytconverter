@@ -48,12 +48,12 @@ export function middleware(req: NextRequest) {
     return NextResponse.next(); // Permitir acesso
   } else if (userType === "USER") {
     if (currentPath.startsWith("/users")) {
-      return NextResponse.redirect(new URL("/myconvertions", req.url));
+      return NextResponse.redirect(new URL("/myconversions", req.url));
     }
     return NextResponse.next(); // Permitir acesso a outras rotas
   } else {
     // Tipo de usuário inválido
-    return NextResponse.redirect(new URL("/myconvertions", req.url));
+    return NextResponse.redirect(new URL("/myconversions", req.url));
   }
 }
 

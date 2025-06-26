@@ -84,16 +84,44 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
             
             video_title = info_dict.get('title', 'video')
             
-            downloaded_files = os.listdir(DOWNLOAD_FOLDER)
-            if not downloaded_files:
-                logging.error("Nenhum arquivo foi baixado")
-                raise HTTPException(status_code=500, detail="Nenhum arquivo foi baixado")
+            # Procurar especificamente pelo arquivo com o unique_id e a extensão correta
+            file_found = False
+            file_path = None
             
-            downloaded_file = downloaded_files[0]
-            file_path = os.path.join(DOWNLOAD_FOLDER, downloaded_file)
+            # Para mp3, procuramos especificamente por arquivos .mp3
+            if format_type.lower() == 'mp3':
+                expected_file = f"{unique_id}.mp3"
+                file_path = os.path.join(DOWNLOAD_FOLDER, expected_file)
+                if os.path.exists(file_path):
+                    file_found = True
+                    internal_filename = expected_file
+            else:
+                # Para mp4, procuramos por arquivos .mp4
+                expected_file = f"{unique_id}.mp4"
+                file_path = os.path.join(DOWNLOAD_FOLDER, expected_file)
+                if os.path.exists(file_path):
+                    file_found = True
+                    internal_filename = expected_file
             
-            if not os.path.exists(file_path):
-                logging.error(f"Arquivo não encontrado: {file_path}")
+            # Se não encontramos o arquivo com a extensão esperada, procuramos por qualquer arquivo com o unique_id
+            if not file_found:
+                for filename in os.listdir(DOWNLOAD_FOLDER):
+                    if filename.startswith(unique_id):
+                        file_path = os.path.join(DOWNLOAD_FOLDER, filename)
+                        file_found = True
+                        
+                        # Se for mp3 mas o arquivo não tem extensão .mp3, renomeamos
+                        if format_type.lower() == 'mp3' and not filename.endswith('.mp3'):
+                            new_file_path = os.path.join(DOWNLOAD_FOLDER, f"{unique_id}.mp3")
+                            os.rename(file_path, new_file_path)
+                            file_path = new_file_path
+                            internal_filename = f"{unique_id}.mp3"
+                        else:
+                            internal_filename = filename
+                        break
+            
+            if not file_found:
+                logging.error("Arquivo não encontrado após o download")
                 raise HTTPException(status_code=500, detail="Arquivo não encontrado após o download")
             
             if format_type.lower() == 'mp3':
@@ -103,8 +131,6 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
             
             logging.info(f"Download concluído: {video_title}")
             
-            internal_filename = f"{unique_id}.{format_type}"
-
             return JSONResponse(content={
                 "data": {
                     "internal_filename": internal_filename,

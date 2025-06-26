@@ -16,12 +16,12 @@ classDiagram
         +User()
     }
 
-    class Convertion {
+    class Conversion {
         -string url
         -double file_size
         -int user_id
         +get_url()
-        +Convertion()
+        +Conversion()
     }
 
     class MP3 {
@@ -32,6 +32,6 @@ classDiagram
         -int video_resolution
     }
 
-    User "1" o-- "many" Convertion : has
-    Convertion <|-- MP3
-    Convertion <|-- MP4
+    User "1" o-- "many" Conversion : has
+    Conversion <|-- MP3
+    Conversion <|-- MP4

@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  usermanagement:
+  datamanagement:
     build:
       context: ./java_backend
       args:
-        SERVICE_NAME: usermanagement
+        SERVICE_NAME: datamanagement
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -13,7 +13,7 @@ services:
       - DB_PASS=root
       - JWT_SECRET_KEY=s/4KMb61LOrMYYAn4rfaQYSgr+le5SMrsMzKw8G6bXc=
       - JWT_ISSUER=user-api
-      - SERVICE_NAME=usermanagement
+      - SERVICE_NAME=datamanagement
     depends_on:
       - db
     ports: 
@@ -38,7 +38,7 @@ services:
       - SERVICE_NAME=emailsender
     depends_on:
       - db
-      - usermanagement
+      - datamanagement
     ports:
       - "8085:8085"
 
@@ -65,7 +65,7 @@ services:
       - ./node_backend/api_gateway:/app
       - /app/node_modules
     depends_on:
-      - usermanagement
+      - datamanagement
     command: npm run start:dev
 
   converter:

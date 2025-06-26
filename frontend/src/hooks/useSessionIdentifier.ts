@@ -30,12 +30,12 @@ export function useSessionIdentifier() {
             if (userRole === UserType.ADMIN) {
                 return [
                     { label: "Usuários", path: "/admin/users" },
-                    { label: "Todas Conversões", path: "/admin/convertions" },
-                    { label: "Minhas Conversões", path: "/myconvertions" } 
+                    { label: "Todas Conversões", path: "/admin/conversions" },
+                    { label: "Minhas Conversões", path: "/myconversions" } 
                 ];
             } else if (userRole === UserType.USER) {
                 return [
-                    { label: "Minhas Conversões", path: "/myconvertions" }
+                    { label: "Minhas Conversões", path: "/myconversions" }
                 ];
             } else {
                 console.warn("Tipo de usuário desconhecido:", userRole);

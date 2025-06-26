@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: 'Administração de conversões do sistema.',
 };
 
-export default function ConvertionsLayout({
+export default function ConversionsLayout({
   children,
 }: {
   children: React.ReactNode;
