@@ -71,7 +71,7 @@ public class ConversionController {
         // Fixed the logic error - now checking if user is NOT an admin
         if(!userService.isAdmin(currentUserEntity())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("{\"error\": \"Access denied: User is not an admin\"}");
+                    .body("{\"error\": \"Acesso negado!\"}");
         }
         
         Pageable pageable = PageRequest.of(page, size);
@@ -89,7 +89,7 @@ public class ConversionController {
             return ResponseEntity.ok(conversions);
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("{\"error\": \"Access denied: User is not authorized\"}");
+                    .body("{\"error\": \"Acesso negado!\"}");
         }
     }
 
