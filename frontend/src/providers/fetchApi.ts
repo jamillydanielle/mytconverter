@@ -49,12 +49,12 @@ export async function fetchWrapper<T>(
 
 
     const response = await fetch(`${baseUrl}${endpoint}`, mergedOptions);
-    if (response.status === 401) {
+    /*if (response.status === 401) {
         alert("Acesso nao autorizado. Por favor faça o login novamente.");
         removeToken();
         window.location.href = "/login";
         return {} as T;
-    }
+    }*/
 
     if (!response.ok) {
         let errorData: any = { message: `Request failed with status ${response.status}` };
