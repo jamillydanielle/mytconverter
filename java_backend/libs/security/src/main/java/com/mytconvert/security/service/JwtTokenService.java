@@ -42,7 +42,6 @@ public class JwtTokenService {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
         try {
-            System.out.println("[JWT] Attempting to verify token...");
             
             String userClaim = JWT.require(algorithm)
                 .withIssuer(issuer)
@@ -51,16 +50,13 @@ public class JwtTokenService {
                 .getClaim("user")
                 .asString();
             
-            System.out.println("[JWT] Token verified successfully");
             
             if (userClaim == null || userClaim.isEmpty()) {
-                System.err.println("[JWT] User claim is null or empty");
                 throw new JWTVerificationException("User claim is missing");
             }
             
             return new ObjectMapper().readValue(userClaim, LoggedUser.class);
         } catch (JWTVerificationException e) {
-            System.err.println("[JWT] JWT Verification failed: " + e.getMessage());
             throw e;
         }
     }

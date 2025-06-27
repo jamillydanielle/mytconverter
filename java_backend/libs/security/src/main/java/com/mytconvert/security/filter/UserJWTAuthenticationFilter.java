@@ -32,16 +32,13 @@ public class UserJWTAuthenticationFilter extends OncePerRequestFilter {
         @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        System.out.println("Bateu no filtro...");
-        System.out.println("URI: " + request.getRequestURI());
+        
 
         String token = recoveryToken(request);
-        System.out.println("leu o token... " + token);
         
         // Bypass authentication for user creation and ALL conversions endpoints
         if ((request.getRequestURI().equals("/users/createUser") && request.getMethod().equals("POST")) ||
             request.getRequestURI().contains("/conversions")) {
-            System.out.println("[FILTER] Bypassing authentication for: " + request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
@@ -55,7 +52,6 @@ public class UserJWTAuthenticationFilter extends OncePerRequestFilter {
                 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JWTVerificationException e) {
-                System.err.println("[FILTER] JWT Verification failed: " + e.getMessage());
                 response.sendError(401);
                 return;
             }

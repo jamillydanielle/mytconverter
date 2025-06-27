@@ -45,7 +45,7 @@ async def send_conversion_data(internal_filename, format_type, duration, request
         # Get the authorization header from the original request
         auth_header = request.headers.get("Authorization")
         if not auth_header:
-            logging.error("No Authorization header found in request")
+            logging.error("Request sem o header Authorization")
             return False
         
         # Prepare the payload
@@ -62,18 +62,18 @@ async def send_conversion_data(internal_filename, format_type, duration, request
         }
         
         # Make the request
-        logging.info(f"Sending conversion data to {DATA_MANAGEMENT_URL}: {payload}")
+        logging.info(f"Enviando dados da conversao para: {DATA_MANAGEMENT_URL}: {payload}")
         response = requests.post(DATA_MANAGEMENT_URL, json=payload, headers=headers)
         
         # Check if the request was successful
         if response.status_code == 201:  # Created
-            logging.info("Conversion data successfully sent to data management service")
+            logging.info("Conversao enviada com sucesso para o microserviço datamanagement")
             return True
         else:
-            logging.error(f"Failed to send conversion data. Status code: {response.status_code}, Response: {response.text}")
+            logging.error(f"Falha para enviar conversao com codigo: {response.status_code}, Response: {response.text}")
             return False
     except Exception as e:
-        logging.error(f"Error sending conversion data: {str(e)}")
+        logging.error(f"Erro para enviar conversao: {str(e)}")
         import traceback
         logging.error(f"Traceback: {traceback.format_exc()}")
         return False
@@ -177,7 +177,7 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
             # Extract the duration from info_dict
             duration = info_dict.get('duration')
             if duration is None:
-                logging.warning("Could not extract duration from video info")
+                logging.warning("Nao foi possivel extrair a duracao do video")
                 duration = 0  # Default value if duration is not available
             
             # Send conversion data to data management service
