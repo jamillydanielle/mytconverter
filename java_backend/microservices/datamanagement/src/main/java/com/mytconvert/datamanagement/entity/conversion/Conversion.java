@@ -37,6 +37,12 @@ public class Conversion {
     @Column(nullable = false)
     private String internalFileName;
 
+    @Column(nullable = false)
+    private String youtubeVideoName;
+
+    @Column(nullable=false)
+    private String youtubeUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ConversionFormat format;
