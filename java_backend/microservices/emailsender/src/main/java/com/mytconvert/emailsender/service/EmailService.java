@@ -1,5 +1,6 @@
 package com.mytconvert.emailsender.service;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,8 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Getter
-@Setter
+@Data
 @Service
 public class EmailService {
 
