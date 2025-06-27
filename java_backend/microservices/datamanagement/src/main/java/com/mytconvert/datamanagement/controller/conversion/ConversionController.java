@@ -56,11 +56,9 @@ public class ConversionController {
         // Validate length
         ValidationUtils.validatePositiveLong(length, "length");
 
-        logger.info("Creating conversion with internalFileName: {}, format: {}, length: {}, userData: {}", internalFileName, format, length, currentUserEntity());
 
         Conversion createdConversion = conversionService.createConversion(currentUserEntity(), internalFileName, format, length);
 
-        logger.info("Conversion created successfully with internal file name: {}", createdConversion.getInternalFileName());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("{\"message:"  + "Nova conversao cadastrada\"}");
@@ -72,7 +70,6 @@ public class ConversionController {
             @RequestParam(defaultValue = "10") int size) {
         // Fixed the logic error - now checking if user is NOT an admin
         if(!userService.isAdmin(currentUserEntity())) {
-            logger.error("Access denied: User is not an admin");
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("{\"error\": \"Access denied: User is not an admin\"}");
         }
@@ -91,7 +88,6 @@ public class ConversionController {
             Page<Conversion> conversions = conversionService.getConversionsByUserIdPaginated(currentUserEntity().getId(), pageable);
             return ResponseEntity.ok(conversions);
         } else {
-            logger.error("Access denied: User is not authorized");
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("{\"error\": \"Access denied: User is not authorized\"}");
         }

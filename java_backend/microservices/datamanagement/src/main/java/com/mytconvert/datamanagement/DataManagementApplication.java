@@ -35,7 +35,7 @@ public CommandLineRunner createAdminUserRunner() {
         if (filteredArgs.size() >= 2 && "create-admin".equals(filteredArgs.get(0))) {
             createAdminUser(filteredArgs.get(1), filteredArgs.get(2), filteredArgs.get(3));
         } else {
-            System.out.println("Application started normally. Use 'create-admin' command to create an admin user.");
+            System.out.println("Aplicação iniciada! Use o comando 'create-admin' para criar um usuario administrador.");
         }
     };
 }
@@ -45,9 +45,9 @@ public CommandLineRunner createAdminUserRunner() {
             User newAdmin = userService.createAdminUser(name, email, password);
             System.out.println("Admin Usuario cadastrado com sucesso: " + newAdmin);
         } catch (ResponseStatusException e) {
-            System.out.println("Error creating admin user: " + e.getReason());
+            System.out.println("Erro ao criar administrador: " + e.getReason());
         } catch (Exception e) {
-            System.out.println("Unexpected error: " + e.getMessage());
+            System.out.println("Erro inesperado: " + e.getMessage());
         }
         System.exit(0);
     }

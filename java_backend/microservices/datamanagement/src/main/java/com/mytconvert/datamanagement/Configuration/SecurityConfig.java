@@ -54,7 +54,6 @@ public class SecurityConfig {
                     
                     // TEMPORARY: Permit all access to conversions endpoints for testing
                     auth.requestMatchers(new AntPathRequestMatcher("/conversions/**")).permitAll();
-                    System.out.println("bypass ta rolando eh aqui burro!!");
                     
                     // Allow test endpoints in test environment
                     if (isTestEnvironment()) {
