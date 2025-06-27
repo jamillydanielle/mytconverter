@@ -41,15 +41,24 @@ public class JwtTokenService {
     public LoggedUser getUserFromToken(String token) throws JsonMappingException, JsonProcessingException, JWTVerificationException {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
-        return new ObjectMapper().readValue(
-            JWT.require(algorithm)
+        try {
+            
+            String userClaim = JWT.require(algorithm)
                 .withIssuer(issuer)
                 .build()
-                .verify(token) 
+                .verify(token)
                 .getClaim("user")
-                .asString(),
-            LoggedUser.class
-        );
+                .asString();
+            
+            
+            if (userClaim == null || userClaim.isEmpty()) {
+                throw new JWTVerificationException("User claim is missing");
+            }
+            
+            return new ObjectMapper().readValue(userClaim, LoggedUser.class);
+        } catch (JWTVerificationException e) {
+            throw e;
+        }
     }
 
     private Instant creationDate() {

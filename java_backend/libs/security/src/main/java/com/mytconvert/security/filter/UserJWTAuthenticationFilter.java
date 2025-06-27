@@ -32,13 +32,16 @@ public class UserJWTAuthenticationFilter extends OncePerRequestFilter {
         @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        if (request.getRequestURI().equals("/users/createUser") && request.getMethod().equals("POST")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        
 
         String token = recoveryToken(request);
         
+        // Bypass authentication for user creation and ALL conversions endpoints
+        if ((request.getRequestURI().equals("/users/createUser") && request.getMethod().equals("POST")) ||
+            request.getRequestURI().contains("/conversions")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         
         if (token != null) {
             try {
@@ -47,7 +50,6 @@ public class UserJWTAuthenticationFilter extends OncePerRequestFilter {
                 Authentication authentication =
                         new UsernamePasswordAuthenticationToken(loggedUser, null, loggedUser.getAuthorities());
                 
-
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JWTVerificationException e) {
                 response.sendError(401);
@@ -67,5 +69,4 @@ public class UserJWTAuthenticationFilter extends OncePerRequestFilter {
 
         return null;
     }
-
 }

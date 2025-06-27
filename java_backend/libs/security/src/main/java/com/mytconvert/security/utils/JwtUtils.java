@@ -42,6 +42,7 @@ public class JwtUtils {
             
             return extractUserDataFromRequest(request);
         } catch (Exception e) {
+            e.printStackTrace();
             return Optional.empty();
         }
     }
@@ -53,8 +54,8 @@ public class JwtUtils {
      */
     public static Optional<Long> getCurrentUserId() {
         return getCurrentUserData()
-                .map(UserData::getUser)
-                .map(User::getId);
+                .map(UserData::getJwtUser)
+                .map(JwtUser::getId);
     }
 
     /**
@@ -62,9 +63,9 @@ public class JwtUtils {
      *
      * @return Optional containing authenticated user, or empty if not authenticated
      */
-    public static Optional<User> getCurrentUser() {
+    public static Optional<JwtUser> getCurrentUser() {
         return getCurrentUserData()
-                .map(UserData::getUser);
+                .map(UserData::getJwtUser);
     }
     
   
@@ -74,8 +75,8 @@ public class JwtUtils {
      * @return Optional containing user type, or empty if not authenticated
      */
     public static Optional<String> getCurrentUserType() {
-        return getCurrentUser()
-                .map(User::getType);
+        Optional<String> userType = getCurrentUser().map(JwtUser::getType);
+        return userType;
     }
     
     
@@ -90,7 +91,16 @@ public class JwtUtils {
                 .orElse(false);
     }
     
-    
+    /**
+     * Check if the current user is an ADMIN
+     *
+     * @return true if user has type ADMIN, false otherwise
+     */
+    public static boolean isAdmin() {
+        return getCurrentUserType()
+                .map(type -> "ADMIN".equalsIgnoreCase(type))
+                .orElse(false);
+    }
     
     /**
      * Process the request to extract and set user authentication
@@ -100,6 +110,8 @@ public class JwtUtils {
      */
     public static Optional<UserData> extractUserDataFromRequest(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
+        
+      
         
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             return Optional.empty();
@@ -119,16 +131,20 @@ public class JwtUtils {
                 return Optional.empty();
             }
             
+            
+            
             UserData userData = objectMapper.readValue(userDataJson, UserData.class);
             
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+         
+            
+           
                 Authentication authentication = createAuthentication(userData);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
+           
             
             return Optional.of(userData);
         } catch (Exception e) {
-            System.err.println("Error decoding JWT token: " + e.getMessage());
+            e.printStackTrace();
             return Optional.empty();
         }
     }
@@ -143,20 +159,23 @@ public class JwtUtils {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         
              
-        if (userData.getUser() != null && userData.getUser().getType() != null) {
-            String type = userData.getUser().getType();
+        if (userData.getJwtUser() != null && userData.getJwtUser().getType() != null) {
+            String type = userData.getJwtUser().getType();
+            
+            // Add both formats of authorities for compatibility
             authorities.add(new SimpleGrantedAuthority("TYPE_" + type.toUpperCase()));
+            authorities.add(new SimpleGrantedAuthority(type.toUpperCase()));
         }
         
-              
         if (userData.getAuthorities() != null) {
             for (Authority authority : userData.getAuthorities()) {
                 authorities.add(new SimpleGrantedAuthority(authority.getAuthority()));
             }
         }
         
+        
         return new UsernamePasswordAuthenticationToken(
-                userData.getUser(), 
+                userData.getJwtUser(), 
                 null, 
                 authorities 
         );
@@ -175,13 +194,24 @@ public class JwtUtils {
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class UserData {
-        private User user;
+        private JwtUser jwtUser;
         private String username;
         private boolean enabled;
         private boolean accountNonExpired;
         private boolean accountNonLocked;
         private boolean credentialsNonExpired;
         private Authority[] authorities;
+        
+        // For backward compatibility with existing JSON that uses "user" field
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        public void setUser(JwtUser user) {
+            this.jwtUser = user;
+        }
+        
+        // For backward compatibility with existing JSON that uses "user" field
+        public JwtUser getUser() {
+            return this.jwtUser;
+        }
     }
 
  
@@ -189,7 +219,7 @@ public class JwtUtils {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class User {
+    public static class JwtUser {
         private Long id;
         private String name;
         private String email;

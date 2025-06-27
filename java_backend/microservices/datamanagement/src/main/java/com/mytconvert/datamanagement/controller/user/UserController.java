@@ -149,7 +149,7 @@ public class UserController {
         User updatedUser = userService.updateUser(id, user);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body("{\"message\": \"User updated\", \"userName\": \"" + updatedUser.getName() + "\"}");
+                .body("{\"message\": \"Usuario atualizado\", \"userName\": \"" + updatedUser.getName() + "\"}");
     }
 
     /**

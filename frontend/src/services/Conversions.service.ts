@@ -14,6 +14,21 @@ interface DownloadResponse {
     }
 }
 
+export const getConversions = async (page: number, size: number): Promise<GetConversionsResponse> => {
+    try {
+        const response = await fetchWrapper<GetConversionsResponse>(
+            `/conversions/conversions/listforuser?page=${page}&size=${size}`,
+            {
+                method: 'GET',
+            }
+        );
+        return response;
+    } catch (error) {
+        console.error("Erro ao buscar conversões:", error);
+        throw error;
+    }
+};
+
 export const downloadMedia = async (url: string, format: 'mp3' | 'mp4'): Promise<DownloadResponse> => {
     try {
         const response = await fetchWrapper<DownloadResponse>(

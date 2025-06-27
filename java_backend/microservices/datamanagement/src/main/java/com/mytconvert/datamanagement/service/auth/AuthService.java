@@ -45,7 +45,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Invalid credentials");
+            throw new BadCredentialsException("Credenciais invalidas");
         }
 
         UserAuthenticated userAuthenticated = (UserAuthenticated) userDetails;

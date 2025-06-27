@@ -7,6 +7,7 @@ import logging
 import yt_dlp
 import uuid
 import shutil
+import requests
 from datetime import datetime
 
 from .Auth import verify_token
@@ -29,9 +30,53 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_FOLDER = os.path.join(BASE_DIR, "downloads")
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
+# URL for the data management microservice
+DATA_MANAGEMENT_URL = os.environ.get("DATA_MANAGEMENT_URL", "http://datamanagement:8080/conversions/createconversion")
+
 @app.get("/")
 def read_root(user: dict = Depends(verify_token)):
     return {"message": "API de Conversão de Vídeos"}
+
+async def send_conversion_data(internal_filename, format_type, duration, request):
+    """
+    Send conversion data to the data management microservice
+    """
+    try:
+        # Get the authorization header from the original request
+        auth_header = request.headers.get("Authorization")
+        if not auth_header:
+            logging.error("Request sem o header Authorization")
+            return False
+        
+        # Prepare the payload
+        payload = {
+            "internal_file_name": internal_filename,
+            "format": format_type.upper(),  # Java expects uppercase format
+            "length": duration
+        }
+        
+        # Prepare headers
+        headers = {
+            "Authorization": auth_header,
+            "Content-Type": "application/json"
+        }
+        
+        # Make the request
+        logging.info(f"Enviando dados da conversao para: {DATA_MANAGEMENT_URL}: {payload}")
+        response = requests.post(DATA_MANAGEMENT_URL, json=payload, headers=headers)
+        
+        # Check if the request was successful
+        if response.status_code == 201:  # Created
+            logging.info("Conversao enviada com sucesso para o microserviço datamanagement")
+            return True
+        else:
+            logging.error(f"Falha para enviar conversao com codigo: {response.status_code}, Response: {response.text}")
+            return False
+    except Exception as e:
+        logging.error(f"Erro para enviar conversao: {str(e)}")
+        import traceback
+        logging.error(f"Traceback: {traceback.format_exc()}")
+        return False
 
 @app.post("/converter/download")
 async def download_video(request: Request, user: dict = Depends(verify_token)):
@@ -129,15 +174,36 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
             else:
                 download_filename = f"{video_title}.mp4"
             
-            logging.info(f"Download concluído: {video_title}")
+            # Extract the duration from info_dict
+            duration = info_dict.get('duration')
+            if duration is None:
+                logging.warning("Nao foi possivel extrair a duracao do video")
+                duration = 0  # Default value if duration is not available
             
-            return JSONResponse(content={
+            # Send conversion data to data management service
+            data_management_success = await send_conversion_data(
+                internal_filename=internal_filename,
+                format_type=format_type,
+                duration=duration,
+                request=request
+            )
+            
+            # Prepare the response
+            response_data = {
                 "data": {
                     "internal_filename": internal_filename,
                     "file_name": download_filename
                 },
                 "message": "Conversão concluída com sucesso"
-            })
+            }
+            
+            # Add a warning if the data management service call failed
+            if not data_management_success:
+                response_data["warning"] = "Falha ao registrar a conversão no sistema de gerenciamento de dados"
+            
+            logging.info(f"Download concluído: {video_title}")
+            
+            return JSONResponse(content=response_data)
     
     except yt_dlp.utils.DownloadError as e:
         logging.error(f"Falha no download do yt-dlp para a URL: {url}")

@@ -51,7 +51,7 @@ describe('API Gateway Tests', () => {
   });
   
   function mockdatamanagementService() {
-    nock(process.env.USER_MANAGEMENT_API || 'http://datamanagement:8080')
+    nock(process.env.DATA_MANAGEMENT_API || 'http://datamanagement:8080')
       .get('/list')
       .reply(200, { message: 'Lista de usuários', users: [] })
       .post('/createUser')
@@ -63,7 +63,7 @@ describe('API Gateway Tests', () => {
       .get('/detail/1')
       .reply(200, { message: 'User details', user: { id: 1, name: 'Test User' } });
       
-    nock(process.env.USER_MANAGEMENT_API || 'http://datamanagement:8080')
+    nock(process.env.DATA_MANAGEMENT_API || 'http://datamanagement:8080')
       .post('/auth/login', { email: 'admin@test.com', password: 'password123' })
       .reply(200, { message: 'Login realizado com sucesso', token: 'valid-token-admin' })
       .post('/auth/login', { email: 'invalid@test.com', password: 'wrongpassword' })

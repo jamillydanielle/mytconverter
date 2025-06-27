@@ -1,9 +1,15 @@
 export interface Conversion {
   id?: number | string;
-  url: string;
-  user_name: String;
-  file_size: number;
+  url?: string;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  internalFileName: string;
+  format: string;
   createdAt: Date;
-  updatedAt: Date;
-  Type: String
+  length: number;
+  file_size?: number;
+  Type?: string;
 }

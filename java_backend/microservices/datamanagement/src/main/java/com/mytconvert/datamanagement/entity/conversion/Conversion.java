@@ -15,12 +15,12 @@ import java.time.LocalDateTime;
 import com.mytconvert.datamanagement.entity.user.User;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -31,8 +31,8 @@ public class Conversion {
     private Long id;
     
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "requester_id", nullable = false)
-    private User requester;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private String internalFileName;
@@ -45,28 +45,17 @@ public class Conversion {
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
-    private Long length; // New attribute for media length
+    private Long length;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
 
-    // Constructor for direct entity creation
-    public Conversion(User requester, String internalFileName, ConversionFormat format, Long length) {
-        this.requester = requester;
+    public Conversion(User user, String internalFileName, ConversionFormat format, Long length) {
+        this.user = user;
         this.internalFileName = internalFileName;
         this.format = format;
         this.length = length;
-    }
-
-    // Constructor for JWT user conversion - this needs to be properly implemented
-    public Conversion(com.mytconvert.security.utils.JwtUtils.User jwtUser, String internalFileName, ConversionFormat format, Long length) {
-        // Note: In a real implementation, you would need to convert the JWT user to an entity User
-        // This might require a user repository lookup
-        this.internalFileName = internalFileName;
-        this.format = format;
-        this.length = length;
-        // The requester should be set after looking up the User entity
     }
 }
