@@ -91,6 +91,7 @@ export const useConversionGroups = () => {
         setCurrentPage, 
         totalPages, 
         pageSize,
-        downloadFile
+        downloadFile,
+        fetchConversionGroups // Expor a função para permitir atualizações manuais
     };
 };

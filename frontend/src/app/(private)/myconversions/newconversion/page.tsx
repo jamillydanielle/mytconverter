@@ -10,6 +10,17 @@ import { useConversionGroups } from '@/hooks/useConversionGroups';
 
 const NewConversionPage = () => {
   const {
+    conversionGroups,
+    loading: conversionsLoading,
+    error: conversionsError,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    downloadFile,
+    fetchConversionGroups
+  } = useConversionGroups();
+
+  const {
     download,
     loading: downloadLoading,
     error: downloadError,
@@ -17,17 +28,12 @@ const NewConversionPage = () => {
     fileName,
     internalFileName,
     handleDownloadClick
-  } = useDownload();
-
-  const {
-    conversionGroups,
-    loading: conversionsLoading,
-    error: conversionsError,
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    downloadFile
-  } = useConversionGroups();
+  } = useDownload({
+    onDownloadSuccess: () => {
+      // Atualizar a listagem de conversões quando o download for concluído com sucesso
+      fetchConversionGroups(currentPage);
+    }
+  });
 
   const handleSubmit = (url: string, format: 'mp3' | 'mp4') => {
     download(url, format);

@@ -13,7 +13,12 @@ interface DownloadResult {
   handleDownloadClick: () => void;
 }
 
-export const useDownload = (): DownloadResult => {
+interface UseDownloadOptions {
+  onDownloadSuccess?: () => void; // Callback para quando o download for concluído com sucesso
+}
+
+export const useDownload = (options?: UseDownloadOptions): DownloadResult => {
+  const { onDownloadSuccess } = options || {};
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -100,12 +105,17 @@ export const useDownload = (): DownloadResult => {
       setInternalFileName(InternalFileNameValue);
       setSuccessMessage('Seu download está pronto!');
 
+      // Chamar o callback de sucesso, se fornecido
+      if (onDownloadSuccess) {
+        onDownloadSuccess();
+      }
+
     } catch (err: any) {
       setError('Erro ao tentar baixar o vídeo. Verifique a URL ou tente novamente.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [onDownloadSuccess]);
 
   return {
     successMessage,
