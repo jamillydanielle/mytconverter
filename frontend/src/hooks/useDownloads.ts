@@ -19,6 +19,7 @@ export const useDownload = (): DownloadResult => {
   const [loading, setLoading] = useState<boolean>(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [internalFileName, setInternalFileName] = useState<string | null>(null);
+  const [format, setFormat] = useState<'mp3' | 'mp4' | null>(null);
   const { userData } = useSessionIdentifier();
 
 
@@ -32,7 +33,33 @@ export const useDownload = (): DownloadResult => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = fileName || internalFileName; 
+        
+        // Check if fileName already has the format extension
+        let downloadName = internalFileName;
+        if (fileName) {
+          let fileFormat = fileName.split('.').pop()?.toLowerCase() || '';
+          
+          // Se a extensão for webm e o formato solicitado for mp4, substitua por mp4
+          if (fileFormat === 'webm' && format === 'mp4') {
+            fileFormat = 'mp4';
+          }
+          
+          // Check if fileName already ends with the format extension
+          if (fileFormat && fileName.toLowerCase().endsWith(`.${fileFormat}`)) {
+            // Se a extensão for webm, substitua por mp4
+            if (fileName.toLowerCase().endsWith('.webm') && format === 'mp4') {
+              downloadName = fileName.substring(0, fileName.length - 5) + '.mp4';
+            } else {
+              downloadName = fileName;
+            }
+          } else if (fileFormat) {
+            downloadName = `${fileName}.${fileFormat}`;
+          } else {
+            downloadName = fileName;
+          }
+        }
+        
+        a.download = downloadName;
         document.body.appendChild(a); 
         a.click();
         a.remove();
@@ -49,7 +76,7 @@ export const useDownload = (): DownloadResult => {
       console.error("Tentativa de download sem nome de arquivo", { internalFileName });
       setError("Nome do arquivo não disponível para download.");
     }
-  }, [internalFileName, fileName]);
+  }, [internalFileName, fileName, format]);
 
 
   const download = useCallback(async (url: string, format: 'mp3' | 'mp4') => {
@@ -57,6 +84,7 @@ export const useDownload = (): DownloadResult => {
     setSuccessMessage('');
     setFileName(null);
     setInternalFileName(null);
+    setFormat(format);
     setLoading(true);
 
     try {

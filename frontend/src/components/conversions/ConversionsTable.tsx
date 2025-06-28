@@ -11,10 +11,14 @@ import {
   Pagination,
   Box,
   Tooltip,
-  Link
+  Link,
+  Button
 } from '@mui/material';
 import { Conversion } from '@/types/Conversion';
 import { format } from 'date-fns';
+import AudioFileIcon from '@mui/icons-material/AudioFile';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import { getFile } from '@/services/Conversions.service';
 
 interface ConversionsTableProps {
   conversions: Conversion[];
@@ -61,6 +65,83 @@ const ConversionsTable: React.FC<ConversionsTableProps> = ({
     return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
   };
 
+  // Function to handle download
+  const handleDownload = async (conversion: Conversion) => {
+    try {
+      const blob = await getFile(conversion.internalFileName);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      // Check if youtubeVideoName already has the format extension
+      let downloadName = conversion.internalFileName;
+      if (conversion.youtubeVideoName) {
+        // Para vídeos, sempre use a extensão .mp4, mesmo que o formato real seja .webm
+        const format = conversion.format.toUpperCase() === 'MP4' ? 'mp4' : conversion.format.toLowerCase();
+        
+        // Check if youtubeVideoName already ends with the format extension
+        if (conversion.youtubeVideoName.toLowerCase().endsWith(`.${format}`)) {
+          downloadName = conversion.youtubeVideoName;
+        } else {
+          downloadName = `${conversion.youtubeVideoName}.${format}`;
+        }
+        
+        // Se o nome do arquivo terminar com .webm, substitua por .mp4
+        if (downloadName.toLowerCase().endsWith('.webm')) {
+          downloadName = downloadName.substring(0, downloadName.length - 5) + '.mp4';
+        }
+      }
+      
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao baixar o arquivo:", error);
+      alert("Erro ao baixar o arquivo. Por favor, tente novamente.");
+    }
+  };
+
+  // Function to get the appropriate icon based on format
+  const getFormatIcon = (format: string) => {
+    if (format.toUpperCase() === 'MP3') {
+      return <AudioFileIcon />;
+    } else if (format.toUpperCase() === 'MP4') {
+      return <VideocamIcon />;
+    }
+    return null;
+  };
+
+  // Function to get button style based on format
+  const getButtonStyle = (format: string) => {
+    if (format.toUpperCase() === 'MP3') {
+      return {
+        backgroundColor: '#1976d2', // Cor azul para MP3
+        color: 'white',
+        '&:hover': {
+          backgroundColor: '#115293', // Cor mais escura no hover
+        },
+        borderRadius: '20px', // Botões mais arredondados
+        padding: '4px 12px',
+      };
+    } else if (format.toUpperCase() === 'MP4') {
+      return {
+        backgroundColor: '#f44336', // Cor vermelha para MP4
+        color: 'white',
+        '&:hover': {
+          backgroundColor: '#d32f2f', // Cor mais escura no hover
+        },
+        borderRadius: '20px', // Botões mais arredondados
+        padding: '4px 12px',
+      };
+    }
+    return {};
+  };
+
   return (
     <Paper sx={{ p: 2, width: '100%' }}>
       <TableContainer>
@@ -72,6 +153,7 @@ const ConversionsTable: React.FC<ConversionsTableProps> = ({
               <TableCell>Formato</TableCell>
               <TableCell>Duração</TableCell>
               <TableCell>Data de Criação</TableCell>
+              <TableCell>Download</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -110,6 +192,17 @@ const ConversionsTable: React.FC<ConversionsTableProps> = ({
                 <TableCell>{`${conversion.length} segundos`}</TableCell>
                 <TableCell>
                   {format(new Date(conversion.createdAt), 'dd/MM/yyyy HH:mm')}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={getFormatIcon(conversion.format)}
+                    onClick={() => handleDownload(conversion)}
+                    sx={getButtonStyle(conversion.format)}
+                  >
+                    {conversion.format}
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

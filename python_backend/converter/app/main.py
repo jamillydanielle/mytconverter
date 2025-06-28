@@ -148,12 +148,16 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
                     file_found = True
                     internal_filename = expected_file
             else:
-                # Para mp4, procuramos por arquivos .mp4
-                expected_file = f"{unique_id}.mp4"
+                # Para mp4, procuramos por arquivos .webm e renomeamos para .mp4
+                expected_file = f"{unique_id}.webm"
                 file_path = os.path.join(DOWNLOAD_FOLDER, expected_file)
                 if os.path.exists(file_path):
+                    # Renomear o arquivo de .webm para .mp4
+                    new_file_path = os.path.join(DOWNLOAD_FOLDER, f"{unique_id}.mp4")
+                    os.rename(file_path, new_file_path)
                     file_found = True
-                    internal_filename = expected_file
+                    internal_filename = f"{unique_id}.mp4"  # Atualizar o nome interno para refletir a nova extensão
+                    logging.info(f"Arquivo renomeado de {expected_file} para {unique_id}.mp4")
             
             # Se não encontramos o arquivo com a extensão esperada, procuramos por qualquer arquivo com o unique_id
             if not file_found:
@@ -168,6 +172,14 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
                             os.rename(file_path, new_file_path)
                             file_path = new_file_path
                             internal_filename = f"{unique_id}.mp3"
+                            logging.info(f"Arquivo renomeado para {internal_filename}")
+                        # Se for mp4 mas o arquivo não tem extensão .mp4, renomeamos
+                        elif format_type.lower() == 'mp4' and not filename.endswith('.mp4'):
+                            new_file_path = os.path.join(DOWNLOAD_FOLDER, f"{unique_id}.mp4")
+                            os.rename(file_path, new_file_path)
+                            file_path = new_file_path
+                            internal_filename = f"{unique_id}.mp4"
+                            logging.info(f"Arquivo renomeado para {internal_filename}")
                         else:
                             internal_filename = filename
                         break
