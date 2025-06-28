@@ -9,7 +9,9 @@ import {
   Paper,
   Typography,
   Pagination,
-  Box
+  Box,
+  Tooltip,
+  Link
 } from '@mui/material';
 import { Conversion } from '@/types/Conversion';
 import { format } from 'date-fns';
@@ -53,13 +55,20 @@ const ConversionsTable: React.FC<ConversionsTableProps> = ({
     return `${mb.toFixed(2)} MB`;
   };
 
+  // Function to truncate long text with ellipsis
+  const truncateText = (text: string, maxLength: number) => {
+    if (!text) return '';
+    return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+  };
+
   return (
     <Paper sx={{ p: 2, width: '100%' }}>
       <TableContainer>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Nome do Arquivo</TableCell>
+              <TableCell>Nome do Vídeo</TableCell>
+              <TableCell>URL do YouTube</TableCell>
               <TableCell>Formato</TableCell>
               <TableCell>Duração</TableCell>
               <TableCell>Data de Criação</TableCell>
@@ -68,7 +77,35 @@ const ConversionsTable: React.FC<ConversionsTableProps> = ({
           <TableBody>
             {conversions.map((conversion) => (
               <TableRow key={conversion.id}>
-                <TableCell>{conversion.internalFileName}</TableCell>
+                <TableCell>
+                  <Tooltip title={conversion.youtubeVideoName || "Nome não disponível"}>
+                    <Typography noWrap sx={{ maxWidth: 200 }}>
+                      {truncateText(conversion.youtubeVideoName || "Nome não disponível", 30)}
+                    </Typography>
+                  </Tooltip>
+                </TableCell>
+                <TableCell>
+                  {conversion.youtubeUrl ? (
+                    <Tooltip title={conversion.youtubeUrl}>
+                      <Link 
+                        href={conversion.youtubeUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        sx={{ 
+                          display: 'block',
+                          maxWidth: 200,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {truncateText(conversion.youtubeUrl, 30)}
+                      </Link>
+                    </Tooltip>
+                  ) : (
+                    "URL não disponível"
+                  )}
+                </TableCell>
                 <TableCell>{conversion.format}</TableCell>
                 <TableCell>{`${conversion.length} segundos`}</TableCell>
                 <TableCell>

@@ -64,4 +64,14 @@ public class Conversion {
         this.format = format;
         this.length = length;
     }
+    
+    // Updated constructor with youtubeVideoName and youtubeUrl
+    public Conversion(User user, String internalFileName, String youtubeVideoName, String youtubeUrl, ConversionFormat format, Long length) {
+        this.user = user;
+        this.internalFileName = internalFileName;
+        this.youtubeVideoName = youtubeVideoName;
+        this.youtubeUrl = youtubeUrl;
+        this.format = format;
+        this.length = length;
+    }
 }

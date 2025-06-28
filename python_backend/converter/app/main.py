@@ -37,7 +37,7 @@ DATA_MANAGEMENT_URL = os.environ.get("DATA_MANAGEMENT_URL", "http://datamanageme
 def read_root(user: dict = Depends(verify_token)):
     return {"message": "API de Conversão de Vídeos"}
 
-async def send_conversion_data(internal_filename, format_type, duration, request):
+async def send_conversion_data(internal_filename, format_type, duration, request, url, video_title):
     """
     Send conversion data to the data management microservice
     """
@@ -48,11 +48,13 @@ async def send_conversion_data(internal_filename, format_type, duration, request
             logging.error("Request sem o header Authorization")
             return False
         
-        # Prepare the payload
+        # Prepare the payload with all required fields
         payload = {
             "internal_file_name": internal_filename,
             "format": format_type.upper(),  # Java expects uppercase format
-            "length": duration
+            "length": duration,
+            "youtube_video_name": video_title,  # Add the video title
+            "youtube_url": url  # Add the original YouTube URL
         }
         
         # Prepare headers
@@ -84,6 +86,7 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
     data = await request.json()
     url = data.get("url")
     format_type = data.get("format", "mp3")
+    youtube_video_name = data.get("youtube_video_name", None)  # Get the video name from request if provided
     
     if not url:
         raise HTTPException(status_code=400, detail="URL é obrigatória")
@@ -128,6 +131,10 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
                 raise HTTPException(status_code=500, detail="Falha ao obter informações do vídeo")
             
             video_title = info_dict.get('title', 'video')
+            
+            # If youtube_video_name wasn't provided in the request, use the one from yt-dlp
+            if not youtube_video_name:
+                youtube_video_name = video_title
             
             # Procurar especificamente pelo arquivo com o unique_id e a extensão correta
             file_found = False
@@ -180,12 +187,14 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
                 logging.warning("Nao foi possivel extrair a duracao do video")
                 duration = 0  # Default value if duration is not available
             
-            # Send conversion data to data management service
+            # Send conversion data to data management service with all required fields
             data_management_success = await send_conversion_data(
                 internal_filename=internal_filename,
                 format_type=format_type,
                 duration=duration,
-                request=request
+                request=request,
+                url=url,  # Pass the original URL
+                video_title=download_filename  # Pass the video title
             )
             
             # Prepare the response

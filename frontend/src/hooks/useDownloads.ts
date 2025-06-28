@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { downloadMedia, getFile } from '@/services/Conversions.service';
 import { useSessionIdentifier } from '@/hooks/useSessionIdentifier';
@@ -62,8 +61,8 @@ export const useDownload = (): DownloadResult => {
 
     try {
       // Obter o link de download e o nome do arquivo da API
+      // The downloadMedia function now handles extracting the YouTube video name
       const response = await downloadMedia(url, format);
-
 
       // Importante: definir todos os estados em uma única atualização de renderização
       const fileNameValue = response.data.file_name;

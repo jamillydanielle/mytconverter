@@ -46,19 +46,29 @@ public class ConversionController {
     @PostMapping("/createconversion")
     public ResponseEntity<String> createConversion(@RequestBody Map<String, Object> payload) {
         
-        List<String> requiredFields = List.of("internal_file_name", "format", "length");
+        // Updated required fields list to include youtube_video_name and youtube_url
+        List<String> requiredFields = List.of("internal_file_name", "format", "length", "youtube_video_name", "youtube_url");
         RequestValidator.validateFieldsForMap(payload, requiredFields);
 
         String internalFileName = (String) payload.get("internal_file_name");
         String format = (String) payload.get("format");
         Long length = Long.valueOf(payload.get("length").toString());
+        String youtubeVideoName = (String) payload.get("youtube_video_name");
+        String youtubeUrl = (String) payload.get("youtube_url");
 
         // Validate length
         ValidationUtils.validatePositiveLong(length, "length");
 
-
-        Conversion createdConversion = conversionService.createConversion(currentUserEntity(), internalFileName, format, length);
-
+        
+        // Create conversion with all required fields
+        Conversion createdConversion = conversionService.createConversion(
+            currentUserEntity(), 
+            internalFileName, 
+            youtubeVideoName, 
+            youtubeUrl, 
+            format, 
+            length
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("{\"message:"  + "Nova conversao cadastrada\"}");
