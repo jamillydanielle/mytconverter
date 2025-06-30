@@ -31,11 +31,36 @@ export const getConversions = async (page: number, size: number): Promise<GetCon
 
 export const downloadMedia = async (url: string, format: 'mp3' | 'mp4'): Promise<DownloadResponse> => {
     try {
+        // Extract video name from URL (this is a simple implementation, might need improvement)
+        let videoName = "Unknown Video";
+        
+        // Try to extract video name from YouTube URL
+        // This is a simple implementation that assumes the URL contains a title or ID
+        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            // Extract video ID or title from URL
+            const urlParts = url.split(/[/?&]/);
+            for (let i = 0; i < urlParts.length; i++) {
+                if (urlParts[i] === 'v=' && i + 1 < urlParts.length) {
+                    videoName = urlParts[i + 1];
+                    break;
+                }
+            }
+            
+            // If we couldn't extract a name, use part of the URL
+            if (videoName === "Unknown Video" && url.length > 10) {
+                videoName = url.substring(0, 30) + "...";
+            }
+        }
+
         const response = await fetchWrapper<DownloadResponse>(
             '/converter/converter/download',
             {
                 method: 'POST',
-                body: JSON.stringify({ url, format }),
+                body: JSON.stringify({ 
+                    url, 
+                    format,
+                    youtube_video_name: videoName 
+                }),
             }
         );
 

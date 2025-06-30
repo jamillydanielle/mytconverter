@@ -1,6 +1,6 @@
 "use client";
 
-import { Headphones, Activity, Clock, Layers } from 'lucide-react';
+import { Headphones, Activity, Clock, Layers, List } from 'lucide-react';
 import { useCallback } from 'react';
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -24,6 +24,12 @@ const useMyConversionsFeatures = () => {
       title: "Nova Conversão",
       actionKey: "converter",
       onClick: () => router.push('/myconversions/newconversion'),
+    },
+    {
+      icon: List,
+      title: "Listar Conversões",
+      actionKey: "listar",
+      onClick: () => router.push('/myconversions/listconversions'),
     },
     {
       icon: Activity,

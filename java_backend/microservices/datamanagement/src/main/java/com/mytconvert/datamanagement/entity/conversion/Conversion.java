@@ -37,6 +37,12 @@ public class Conversion {
     @Column(nullable = false)
     private String internalFileName;
 
+    @Column(nullable = false)
+    private String youtubeVideoName;
+
+    @Column(nullable=false)
+    private String youtubeUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ConversionFormat format;
@@ -55,6 +61,16 @@ public class Conversion {
     public Conversion(User user, String internalFileName, ConversionFormat format, Long length) {
         this.user = user;
         this.internalFileName = internalFileName;
+        this.format = format;
+        this.length = length;
+    }
+    
+    // Updated constructor with youtubeVideoName and youtubeUrl
+    public Conversion(User user, String internalFileName, String youtubeVideoName, String youtubeUrl, ConversionFormat format, Long length) {
+        this.user = user;
+        this.internalFileName = internalFileName;
+        this.youtubeVideoName = youtubeVideoName;
+        this.youtubeUrl = youtubeUrl;
         this.format = format;
         this.length = length;
     }

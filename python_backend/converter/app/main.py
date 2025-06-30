@@ -37,7 +37,7 @@ DATA_MANAGEMENT_URL = os.environ.get("DATA_MANAGEMENT_URL", "http://datamanageme
 def read_root(user: dict = Depends(verify_token)):
     return {"message": "API de Conversão de Vídeos"}
 
-async def send_conversion_data(internal_filename, format_type, duration, request):
+async def send_conversion_data(internal_filename, format_type, duration, request, url, video_title):
     """
     Send conversion data to the data management microservice
     """
@@ -48,11 +48,13 @@ async def send_conversion_data(internal_filename, format_type, duration, request
             logging.error("Request sem o header Authorization")
             return False
         
-        # Prepare the payload
+        # Prepare the payload with all required fields
         payload = {
             "internal_file_name": internal_filename,
             "format": format_type.upper(),  # Java expects uppercase format
-            "length": duration
+            "length": duration,
+            "youtube_video_name": video_title,  # Add the video title
+            "youtube_url": url  # Add the original YouTube URL
         }
         
         # Prepare headers
@@ -84,6 +86,7 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
     data = await request.json()
     url = data.get("url")
     format_type = data.get("format", "mp3")
+    youtube_video_name = data.get("youtube_video_name", None)  # Get the video name from request if provided
     
     if not url:
         raise HTTPException(status_code=400, detail="URL é obrigatória")
@@ -129,6 +132,10 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
             
             video_title = info_dict.get('title', 'video')
             
+            # If youtube_video_name wasn't provided in the request, use the one from yt-dlp
+            if not youtube_video_name:
+                youtube_video_name = video_title
+            
             # Procurar especificamente pelo arquivo com o unique_id e a extensão correta
             file_found = False
             file_path = None
@@ -141,12 +148,16 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
                     file_found = True
                     internal_filename = expected_file
             else:
-                # Para mp4, procuramos por arquivos .mp4
-                expected_file = f"{unique_id}.mp4"
+                # Para mp4, procuramos por arquivos .webm e renomeamos para .mp4
+                expected_file = f"{unique_id}.webm"
                 file_path = os.path.join(DOWNLOAD_FOLDER, expected_file)
                 if os.path.exists(file_path):
+                    # Renomear o arquivo de .webm para .mp4
+                    new_file_path = os.path.join(DOWNLOAD_FOLDER, f"{unique_id}.mp4")
+                    os.rename(file_path, new_file_path)
                     file_found = True
-                    internal_filename = expected_file
+                    internal_filename = f"{unique_id}.mp4"  # Atualizar o nome interno para refletir a nova extensão
+                    logging.info(f"Arquivo renomeado de {expected_file} para {unique_id}.mp4")
             
             # Se não encontramos o arquivo com a extensão esperada, procuramos por qualquer arquivo com o unique_id
             if not file_found:
@@ -161,6 +172,14 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
                             os.rename(file_path, new_file_path)
                             file_path = new_file_path
                             internal_filename = f"{unique_id}.mp3"
+                            logging.info(f"Arquivo renomeado para {internal_filename}")
+                        # Se for mp4 mas o arquivo não tem extensão .mp4, renomeamos
+                        elif format_type.lower() == 'mp4' and not filename.endswith('.mp4'):
+                            new_file_path = os.path.join(DOWNLOAD_FOLDER, f"{unique_id}.mp4")
+                            os.rename(file_path, new_file_path)
+                            file_path = new_file_path
+                            internal_filename = f"{unique_id}.mp4"
+                            logging.info(f"Arquivo renomeado para {internal_filename}")
                         else:
                             internal_filename = filename
                         break
@@ -180,12 +199,14 @@ async def download_video(request: Request, user: dict = Depends(verify_token)):
                 logging.warning("Nao foi possivel extrair a duracao do video")
                 duration = 0  # Default value if duration is not available
             
-            # Send conversion data to data management service
+            # Send conversion data to data management service with all required fields
             data_management_success = await send_conversion_data(
                 internal_filename=internal_filename,
                 format_type=format_type,
                 duration=duration,
-                request=request
+                request=request,
+                url=url,  # Pass the original URL
+                video_title=download_filename  # Pass the video title
             )
             
             # Prepare the response
