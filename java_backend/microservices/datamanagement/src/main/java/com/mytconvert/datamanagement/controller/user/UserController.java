@@ -1,13 +1,17 @@
 package com.mytconvert.datamanagement.controller.user;
 
 import com.mytconvert.datamanagement.dto.UserData;
+import com.mytconvert.datamanagement.dto.UserSessionDTO;
 import com.mytconvert.datamanagement.entity.user.User;
 import com.mytconvert.datamanagement.entity.user.UserType;
 import com.mytconvert.datamanagement.service.user.UserService;
+import com.mytconvert.datamanagement.service.user.UserSessionService;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,16 +27,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final UserSessionService userSessionService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserSessionService userSessionService) {
         this.userService = userService;
+        this.userSessionService = userSessionService;
     }
 
     @PostMapping("/createUser")
@@ -59,23 +64,6 @@ public class UserController {
         return ResponseEntity.ok().body(userExists);
     }
 
-    /**
-     * GET /users
-     * Retorna uma lista paginada de usuários
-     *
-     * @param pageable a informação de paginação (query parameters page e size da
-     *                 requisição)
-     * @return um ResponseEntity contendo uma página de usuários
-     */
-    /*
-     * @GetMapping("/list")
-     * public ResponseEntity<Page<User>> listUsers(@PageableDefault(size = 10)
-     * Pageable pageable) {
-     * Page<UserData> users = userService.listUsers(pageable);
-     * return ResponseEntity.ok(users);
-     * }
-     */
-
     @GetMapping("/list")
     public ResponseEntity<Page<UserData>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -93,21 +81,34 @@ public class UserController {
         return ResponseEntity.ok(userDataPage);
     }
 
+    @GetMapping("/sessions")
+    public ResponseEntity<List<UserSessionDTO>> getUserSessions() {
+        List<User> users = userService.getAllUsers();
+        
+        List<UserSessionDTO> sessionDTOs = users.stream()
+            .map(user -> {
+                LocalDateTime lastSession = userSessionService.getLastSessionTime(user);
+                
+                return new UserSessionDTO(
+                    user.getId(),
+                    user.getName(),
+                    lastSession
+                );
+            })
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(sessionDTOs);
+    }
+
     private UserData mapUserToUserData(User user) {
         return new UserData(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getType());
+                user.getType(),
+                user.getDeactivatedAt());  // Adicionado o campo deactivatedAt
     }
 
-    /**
-     * GET /users/{id}
-     * Retorna um usuário pelo ID
-     *
-     * @param id o ID do usuário
-     * @return um ResponseEntity contendo o usuário ou 404 Not Found
-     */
     @GetMapping("/list/{id}")
     public ResponseEntity<UserData> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
@@ -120,20 +121,31 @@ public class UserController {
                     userInstance.getId(),
                     userInstance.getName(),
                     userInstance.getEmail(),
-                    type);
+                    type,
+                    userInstance.getDeactivatedAt());  // Adicionado o campo deactivatedAt
             return ResponseEntity.ok(userData);
         }
         return ResponseEntity.status(404).build();
     }
 
-    /**
-     * PUT /users/{id}
-     * Atualiza um usuário existente
-     *
-     * @param id   o ID do usuário a ser atualizado
-     * @param user o objeto do usuário com os novos dados
-     * @return um ResponseEntity contendo o usuário atualizado ou 404 Not Found
-     */
+    @GetMapping("/session/{id}")
+    public ResponseEntity<UserSessionDTO> getUserSessionById(@PathVariable Long id) {
+        Optional<User> userOpt = userService.getUserById(id);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            LocalDateTime lastSession = userSessionService.getLastSessionTime(user);
+            
+            UserSessionDTO sessionDTO = new UserSessionDTO(
+                user.getId(),
+                user.getName(),
+                lastSession
+            );
+            
+            return ResponseEntity.ok(sessionDTO);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @PutMapping("/edit/{id}")
     public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
 
@@ -152,13 +164,6 @@ public class UserController {
                 .body("{\"message\": \"Usuario atualizado\", \"userName\": \"" + updatedUser.getName() + "\"}");
     }
 
-    /**
-     * DELETE /users/{id}
-     * Exclui um usuário pelo ID
-     *
-     * @param id o ID do usuário a ser excluído
-     * @return um ResponseEntity com status 204 No Content ou 404 Not Found
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         boolean deleted = userService.deleteUser(id);

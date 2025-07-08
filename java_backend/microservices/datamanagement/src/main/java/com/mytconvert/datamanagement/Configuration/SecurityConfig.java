@@ -15,9 +15,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
+import com.mytconvert.datamanagement.filter.UserActiveCheckFilter;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -35,9 +37,14 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 @EnableMethodSecurity(jsr250Enabled = true)
 public class SecurityConfig {
 
+    private final UserActiveCheckFilter userActiveCheckFilter;
 
     @Value("${jwt.secret_key}")
     private String secretKey;
+
+    public SecurityConfig(UserActiveCheckFilter userActiveCheckFilter) {
+        this.userActiveCheckFilter = userActiveCheckFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -68,7 +75,9 @@ public class SecurityConfig {
                 })
                 .oauth2ResourceServer(conf -> {
                     conf.jwt(Customizer.withDefaults()); // Configura o JWT para usar o servidor de recurso do OAuth2
-                });
+                })
+                // Adiciona o filtro de verificação de usuário ativo após o filtro de autenticação
+                .addFilterAfter(userActiveCheckFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

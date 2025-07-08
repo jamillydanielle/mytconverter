@@ -144,7 +144,7 @@ public class ConversionService {
             
             // Create and add the metrics DTO
             UserConversionMetricsDTO dto = new UserConversionMetricsDTO(
-                    user.getUsername(),
+                    user.getName(),
                     mp3Count,
                     mp4Count,
                     totalMinutes,

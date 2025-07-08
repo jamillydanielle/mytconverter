@@ -13,18 +13,20 @@ import com.mytconvert.datamanagement.entity.user.UserType;
 import com.mytconvert.datamanagement.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
-    @Autowired
     private final UserRepository userRepository;
+    private final UserSessionService userSessionService;
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    
-    public UserService(UserRepository userRepository) {
+    @Autowired
+    public UserService(UserRepository userRepository, UserSessionService userSessionService) {
         this.userRepository = userRepository;
+        this.userSessionService = userSessionService;
     }
 
     public User createUser(User user) {
@@ -109,6 +111,10 @@ public class UserService {
     
         user.setDeactivatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
+        
+        // Invalidar todas as sessões ativas do usuário
+        userSessionService.invalidateAllUserSessions(user);
+        
         return userRepository.save(user);
     }
 
@@ -125,8 +131,14 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // Método atualizado para incluir usuários desativados
     public Page<User> listUsers(Pageable pageable) {
-        return userRepository.findByDeactivatedAtIsNullAndTypeNot(pageable, UserType.ADMIN);
+        // Retorna todos os usuários, exceto administradores
+        return userRepository.findByTypeNot(pageable, UserType.ADMIN);
+    }
+    
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     public Optional<User> getUserById(Long id) {

@@ -112,22 +112,15 @@ public class AuthController {
                 .body("{\"message\": \"Usuario cadastrado\", \"userName\": \"" + createdUser.getName() + "\"}");
     }
 
-@GetMapping("/is-logged-in")
+    @GetMapping("/is-logged-in")
     public ResponseEntity<Map<String, Boolean>> isLoggedIn() {
-        
         Map<String, Boolean> response = new HashMap<>();
         boolean isLoggedUser = authService.isLoggedIn();
-        if (isLoggedUser) {
-            response.put("isLoggedIn", isLoggedUser);
-            return ResponseEntity.ok(response);
-        } else {
-            response.put("isLoggedIn", isLoggedUser);
-            return ResponseEntity.ok(response);
-        }
+        response.put("isLoggedIn", isLoggedUser);
+        return ResponseEntity.ok(response);
     }
 
-    
-@PutMapping("/change-password/{email}")
+    @PutMapping("/change-password/{email}")
     public ResponseEntity<?> changePassword(@PathVariable String email, @RequestBody ChangePasswordRequest request) {
         List<String> requiredFields = Arrays.asList("newPassword");
         RequestValidator.validateFields(request, requiredFields);

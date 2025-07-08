@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.mytconvert.security.entity.LoggedUser;
 import com.mytconvert.security.service.JwtTokenService;
 
 import jakarta.servlet.FilterChain;
@@ -45,7 +46,7 @@ public class UserJWTAuthenticationFilter extends OncePerRequestFilter {
         
         if (token != null) {
             try {
-                var loggedUser = jwtTokenService.getUserFromToken(token); 
+                LoggedUser loggedUser = jwtTokenService.getUserFromToken(token);
                 
                 Authentication authentication =
                         new UsernamePasswordAuthenticationToken(loggedUser, null, loggedUser.getAuthorities());

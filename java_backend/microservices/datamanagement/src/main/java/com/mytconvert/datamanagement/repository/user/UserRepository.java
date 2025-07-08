@@ -21,5 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
         return findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario nao encontrado"));
     }
     Page<User> findByDeactivatedAtIsNullAndTypeNot(Pageable pageable, UserType type);
-
+    
+    // Novo método para buscar todos os usuários, incluindo desativados
+    Page<User> findByTypeNot(Pageable pageable, UserType type);
 }
