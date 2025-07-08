@@ -13,7 +13,6 @@ describe('API Gateway Tests', () => {
   let server: http.Server;
   const PORT = 9999;
   
-  // Helper function to create tokens
   const createToken = (userType: string, authorities: Array<{authority: string}>) => {
     const user = { 
       user: { 
@@ -32,8 +31,7 @@ describe('API Gateway Tests', () => {
   };
   
   beforeAll((done) => {
-    // Mock services for testing
-    mockUserManagementService();
+    mockdatamanagementService();
     
     server = app.listen(PORT, () => {
       console.log(`Test server running on http://localhost:${PORT}`);
@@ -48,19 +46,16 @@ describe('API Gateway Tests', () => {
   
   afterEach(() => {
     nock.cleanAll();
-    // Re-setup mocks after each test to ensure fresh state
-    mockUserManagementService();
+    mockdatamanagementService();
 
   });
   
-  // Mock setup functions to improve organization and allow re-use
-  function mockUserManagementService() {
-    // User Management API mock
-    nock(process.env.USER_MANAGEMENT_API || 'http://usermanagement:8080')
+  function mockdatamanagementService() {
+    nock(process.env.DATA_MANAGEMENT_API || 'http://datamanagement:8080')
       .get('/list')
       .reply(200, { message: 'Lista de usuários', users: [] })
       .post('/createUser')
-      .reply(201, { message: 'User created', userName: 'New User' })
+      .reply(201, { message: 'Usuario cadastrado', userName: 'New User' })
       .put('/edit/1')
       .reply(200, { message: 'User updated', userName: 'Updated User' })
       .delete('/1')
@@ -68,13 +63,12 @@ describe('API Gateway Tests', () => {
       .get('/detail/1')
       .reply(200, { message: 'User details', user: { id: 1, name: 'Test User' } });
       
-    // Auth endpoints
-    nock(process.env.USER_MANAGEMENT_API || 'http://usermanagement:8080')
+    nock(process.env.DATA_MANAGEMENT_API || 'http://datamanagement:8080')
       .post('/auth/login', { email: 'admin@test.com', password: 'password123' })
-      .reply(200, { message: 'Login successful', token: 'valid-token-admin' })
+      .reply(200, { message: 'Login realizado com sucesso', token: 'valid-token-admin' })
       .post('/auth/login', { email: 'invalid@test.com', password: 'wrongpassword' })
-      .reply(401, { message: 'The username or password is incorrect. Please try again.' })
+      .reply(401, { message: 'Email ou senha estao incorretos. Tente novamente.' })
       .post('/auth/login', { email: 'disabled@test.com', password: 'password123' })
-      .reply(403, { message: 'Account disabled' });
+      .reply(403, { message: 'Conta desativada' });
   }
 });

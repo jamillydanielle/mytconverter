@@ -16,7 +16,6 @@ const usePasswordValidation = (): UsePasswordValidationResult => {
     const [error, setError] = useState<string>('');
 
     const validatePasswordStrength = useCallback((pwd: string): string | null => {
-        console.log(pwd)
         if (pwd.length === 0) return null;
         if (pwd.length < 8) return "A senha precisa ter pelo menos 8 caracteres.";
         if (!/[A-Z]/.test(pwd)) return "A senha precisa ter pelo menos uma letra maiuscula.";

@@ -19,7 +19,7 @@ const GenericButton: React.FC<GenericButtonProps> = ({
   onClick, 
   sx, 
   className, 
-  type = 'button' // Valor padrão é 'button'
+  type = 'button'
 }) => {
   return (
     <Button

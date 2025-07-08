@@ -1,5 +1,3 @@
-// frontend/src/app/(private)/users/layout.tsx
-
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

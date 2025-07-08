@@ -30,7 +30,6 @@ export function decodeJwtToken(): UserData | null {
   try {
     const decodedToken = jwtDecode<DecodedToken>(token);
     const userData: UserData = JSON.parse(decodedToken.user);
-    console.log(userData);
     return userData;
   } catch (error) {
     console.error('Error decoding token:', error);

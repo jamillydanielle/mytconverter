@@ -8,7 +8,7 @@ import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import usePasswordValidation from '@/hooks/usePasswordValidation';
 import { useAlert } from '@/components/alert/AlertProvider';
-import useRegisterForm from '../../hooks/useRegisterForm'; // Importando o hook useRegisterForm
+import useRegisterForm from '@/hooks/useRegisterForm'; // Importando o hook useRegisterForm
 
 const RegisterForm: React.FC = () => {
     const {
@@ -43,7 +43,6 @@ const RegisterForm: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validação explícita antes de tentar registrar
         const strengthError = validatePasswordStrength(password);
         if (strengthError) {
             addAlert(strengthError, "error");

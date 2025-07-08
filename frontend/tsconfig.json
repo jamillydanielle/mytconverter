@@ -14,10 +14,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    // --- ADICIONE A LINHA ABAIXO ---
-    "types": ["vite/client", "vitest/globals"], // Adicione 'vite/client' se estiver usando Vite
-    // Se você decidir usar jest-dom no futuro, adicione "@testing-library/jest-dom" aqui também
-    // ---------------------------------
+    "types": ["vite/client", "vitest/globals"],
     "plugins": [
       {
         "name": "next"

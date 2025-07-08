@@ -18,7 +18,7 @@ public class EmailController {
     @PostMapping("/send-email")
     public ResponseEntity<String> sendEmail(@RequestParam String receiverEmail, @RequestParam String result) {
         if (receiverEmail == null || receiverEmail.isEmpty()) {
-            return ResponseEntity.badRequest().body("You need to provide the receiver's email.");
+            return ResponseEntity.badRequest().body("Informe o email do destinatario.");
         }
 
         String subject = "Test ";
@@ -26,7 +26,7 @@ public class EmailController {
 
         emailService.sendEmail(receiverEmail, subject, text);
 
-        return ResponseEntity.ok("Email sent successfully!");
+        return ResponseEntity.ok("Email enviado com sucesso!");
     }
 
 }

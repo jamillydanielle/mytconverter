@@ -2,7 +2,7 @@
 "use client";
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import jwt from 'jsonwebtoken'; // Você está usando 'jsonwebtoken' aqui
+import jwt from 'jsonwebtoken';
 import Cookies from 'js-cookie';
 
 const RootRedirect = () => {
@@ -17,9 +17,9 @@ const RootRedirect = () => {
                 if (decoded && typeof decoded === 'object' && 'scope' in decoded && typeof decoded.scope === 'string') {
                     const userType = decoded.scope.toUpperCase();
                     if (userType === 'ADMIN') {
-                        router.push('/users');
+                        router.push('/admin/users');
                     } else if (userType === 'USER') {
-                        router.push('/myconvertions');
+                        router.push('/myconversions');
                     } else {
                         console.error('Tipo de usuário desconhecido no token (scope):', decoded.scope);
                         router.push('/login'); // Fallback se o scope não for reconhecido

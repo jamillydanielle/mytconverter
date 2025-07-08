@@ -1,5 +1,6 @@
 package com.mytconvert.emailsender.service;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,8 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Getter
-@Setter
+@Data
 @Service
 public class EmailService {
 
@@ -28,13 +28,13 @@ public class EmailService {
 
 
     public void sendEmail(String receiver, String subject, String text) {
-        SimpleMailMessage mensagem = new SimpleMailMessage();
-        mensagem.setTo(receiver);
-        mensagem.setSubject(subject);
-        mensagem.setText(text);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(receiver);
+        message.setSubject(subject);
+        message.setText(text);
 
         try {
-            emailSender.send(mensagem);
+            emailSender.send(message);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Falha ao enviar email.");
         }

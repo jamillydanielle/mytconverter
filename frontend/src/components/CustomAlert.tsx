@@ -1,4 +1,3 @@
-// components/CustomAlert.tsx
 import React from 'react';
 import { Box, BoxProps } from '@mui/material';
 import { SxProps, Theme } from '@mui/system';
@@ -28,7 +27,7 @@ const CustomAlert: React.FC<CustomAlertProps & Omit<BoxProps, 'sx'>> = ({
         borderRadius: '4px',
         mt: 2,
         mb: 2,
-        ...sx // Allow overriding default styles
+        ...sx
       }}
       {...otherProps}
     >

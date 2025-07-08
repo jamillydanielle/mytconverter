@@ -53,8 +53,8 @@ export const useLoginForm = () => {
             } else {
                 result = await loginUser(credentials.email, credentials.password, credentials.rememberMe);
             }
-            if (result.message === "Password needs to be changed") {
-                addAlert("Password needs to be changed", "warning")
+            if (result.message === "A senha precisa ser trocada") {
+                addAlert("A senha precisa ser trocada", "warning")
                 setChangePassword(true);
                 setPassword(credentials.password)
                 setTempToken(result.token)
@@ -64,7 +64,7 @@ export const useLoginForm = () => {
                     setToken(result.token);
                     setLoginSuccess(true);
                 } else {
-                    setError("Login successful, but no token received");
+                    setError("Login realizado com sucesso, but no token received");
                 }
             }
         } catch (error) {
@@ -72,8 +72,8 @@ export const useLoginForm = () => {
                 if (error.message === "Failed to fetch") {
                     addAlert("A network error occurred", "error")
                     setError("A network error occurred");
-                } else if (error.message === "Password needs to be changed") {
-                    addAlert("Password needs to be changed", "warning")
+                } else if (error.message === "A senha precisa ser trocada") {
+                    addAlert("A senha precisa ser trocada", "warning")
                     setChangePassword(true);
                     setError("");
                 } else {

@@ -1,5 +1,6 @@
 import { fetchWrapper } from "@/providers/fetchApi";
 import { User } from '@/types/User';
+import { UserSession } from '@/types/UserSession';
 
 interface UsersResponse {
     content: User[];
@@ -7,7 +8,7 @@ interface UsersResponse {
 }
 
 export const createUser = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
-    const response = await fetchWrapper<User>('/users/users/createUser', { // or /users/users, adjust to backend endpoint
+    const response = await fetchWrapper<User>('/users/users/createUser', {
         method: 'POST',
         body: JSON.stringify(user)
     });
@@ -28,8 +29,39 @@ export const getUserById = async(userId : string): Promise<User> => {
     return response;
 }
 
+export const updateUser = async (userId: string, userData: Partial<User>): Promise<User> => {
+    const response = await fetchWrapper<User>(`/users/users/${userId}`, {
+        method: 'PUT',
+        body: JSON.stringify(userData)
+    });
+    return response;
+};
+
 export const deactivateUser = async (userId: string): Promise<void> => {
     await fetchWrapper<void>(`/users/users/${userId}/deactivate`, {
         method: 'PUT'
+    });
+};
+
+export const activateUser = async (userId: string): Promise<void> => {
+    await fetchWrapper<void>(`/users/users/${userId}/activate`, {
+        method: 'PUT'
+    });
+};
+
+// Simulação de API para obter informações de sessão dos usuários
+// Em um ambiente real, isso seria substituído por uma chamada real à API
+export const getUserSessions = async (): Promise<UserSession[]> => {
+    // Simulando uma resposta da API com dados fictícios
+    // Em um ambiente real, isso seria uma chamada à API
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([
+                { userId: 1, isLoggedIn: true, lastSession: new Date() },
+                { userId: 2, isLoggedIn: false, lastSession: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // 1 dia atrás
+                { userId: 3, isLoggedIn: true, lastSession: new Date() },
+                // Adicione mais dados simulados conforme necessário
+            ]);
+        }, 300);
     });
 };

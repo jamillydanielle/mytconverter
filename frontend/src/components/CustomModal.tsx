@@ -21,7 +21,7 @@ const CustomModal: React.FC<ModalProps> = ({
 }) => {
   return (
     <Modal
-      open={true} // Sempre aberto, pois o controle é feito no pai
+      open={true}
       onClose={onCloseAction}
       className="flex items-center justify-center"
     >
@@ -62,11 +62,11 @@ const CustomModal: React.FC<ModalProps> = ({
               fontSize: 16,
               fontWeight: 700,
               textTransform: "none",
-              backgroundColor: "transparent", // Sem fundo
-              color: "black", // Apenas texto em preto
-              boxShadow: "none", // Remove qualquer sombra
+              backgroundColor: "transparent",
+              color: "black",
+              boxShadow: "none",
               "&:hover": {
-                backgroundColor: "transparent", // Sem fundo no hover também
+                backgroundColor: "transparent",
               },
             }}
           />

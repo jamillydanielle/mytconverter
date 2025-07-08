@@ -1,9 +1,8 @@
-// src/hooks/useRegister.ts
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { User } from '../types/User';
-import { createUser } from '../services/Users.service';
-import { useAlert } from '../components/alert/AlertProvider';
+import { User } from '@/types/User';
+import { createUser } from '@/services/Users.service';
+import { useAlert } from '@/components/alert/AlertProvider';
 
 interface RegistrationData {
     name: string;
@@ -23,11 +22,9 @@ const useRegisterForm = () => {
 
         try {
             const createdUser: User = await createUser(registrationData as Omit<User, 'id' | 'createdAt' | 'updatedAt'>);
-            console.log('User created:', createdUser);
             addAlert("Usuário criado com sucesso!", "success");
             router.push('/login');
         } catch (error: any) {
-            console.error('Error creating user:', error);
             addAlert(`Erro ao criar usuário: ${error.message || 'Erro desconhecido'}`, "error");
         } finally {
             setLoading(false); // Finalizando o loading, independente do resultado

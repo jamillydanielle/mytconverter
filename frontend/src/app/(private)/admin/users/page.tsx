@@ -1,12 +1,19 @@
-// frontend/src/app/(private)/users/page.tsx
 "use client";
 
 import AppLayout from '@/components/layout/AppLayout';
-import { Box, Typography, Divider, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Box, Typography, Divider } from '@mui/material';
 import { useUsers } from '@/hooks/useUsers';
+import UsersTable from '@/components/users/UsersTable';
 
 export default function UsersPage() {
-  const { users, loading, error } = useUsers();
+  const { 
+    users, 
+    loading, 
+    error, 
+    currentPage, 
+    setCurrentPage, 
+    totalPages
+  } = useUsers();
 
   return (
     <AppLayout sidebarState="dashboard">
@@ -16,34 +23,17 @@ export default function UsersPage() {
         </Typography>
         <Divider />
       </Box>
-      <Paper sx={{ p: 2 }}>
-        {loading ? (
-          <Typography>Carregando usuários...</Typography>
-        ) : error ? (
-          <Typography color="error">Erro ao carregar usuários: {error}</Typography>
-        ) : (
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Nome</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Tipo de Usuário</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.type}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </Paper>
+      
+      <UsersTable 
+        users={users}
+        loading={loading}
+        error={error}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        onDeactivate={() => {}} // Mantendo para evitar erros de tipo, mas não será usado
+        onActivate={() => {}}   // Mantendo para evitar erros de tipo, mas não será usado
+      />
     </AppLayout>
   );
 }
