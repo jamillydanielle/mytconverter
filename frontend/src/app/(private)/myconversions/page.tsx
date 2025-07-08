@@ -3,7 +3,7 @@
 import React from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import FeatureCard from '@/components/dashboard/FeatureCard';
-import useMyConversionsFeatures, { Feature } from '@/hooks/useMyConversionsFeatures'; // Corrected import
+import useMyConversionsFeatures, { Feature } from '@/hooks/useMyConversionsFeatures';
 import { Grid, Box, Divider, Typography } from '@mui/material';
 
 const MyConversionsPage = () => {

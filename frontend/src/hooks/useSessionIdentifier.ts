@@ -30,7 +30,7 @@ export function useSessionIdentifier() {
             if (userRole === UserType.ADMIN) {
                 return [
                     { label: "Usuários", path: "/admin/users" },
-                    { label: "Todas Conversões", path: "/admin/conversions" },
+                    { label: "Métricas", path: "/admin/metrics" },
                     { label: "Minhas Conversões", path: "/myconversions" } 
                 ];
             } else if (userRole === UserType.USER) {

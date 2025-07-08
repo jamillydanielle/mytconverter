@@ -27,7 +27,7 @@ const CustomAlert: React.FC<CustomAlertProps & Omit<BoxProps, 'sx'>> = ({
         borderRadius: '4px',
         mt: 2,
         mb: 2,
-        ...sx // Allow overriding default styles
+        ...sx
       }}
       {...otherProps}
     >

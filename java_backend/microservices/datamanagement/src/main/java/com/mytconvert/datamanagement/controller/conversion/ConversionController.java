@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mytconvert.datamanagement.dto.UserConversionMetricsDTO;
 import com.mytconvert.datamanagement.entity.conversion.Conversion;
 import com.mytconvert.datamanagement.entity.user.User;
 import com.mytconvert.datamanagement.service.conversion.ConversionService;
@@ -85,8 +86,11 @@ public class ConversionController {
         }
         
         Pageable pageable = PageRequest.of(page, size);
-        Page<Conversion> conversions = conversionService.getAllConversionsPaginated(pageable);
-        return ResponseEntity.ok(conversions);
+        
+        // Use the new method to get aggregated metrics instead of all conversion details
+        Page<UserConversionMetricsDTO> userMetrics = conversionService.getUserConversionMetricsPaginated(pageable);
+        
+        return ResponseEntity.ok(userMetrics);
     }
 
     @GetMapping("/listforuser")

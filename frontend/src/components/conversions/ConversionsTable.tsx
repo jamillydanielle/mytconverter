@@ -29,6 +29,21 @@ interface ConversionsTableProps {
   onPageChange: (page: number) => void;
 }
 
+// Função para formatar segundos em hh:mm:ss
+const formatTimeHHMMSS = (seconds: number): string => {
+  // Calcular horas, minutos e segundos
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  
+  // Formatar com zeros à esquerda quando necessário
+  const formattedHours = hours.toString().padStart(2, '0');
+  const formattedMinutes = minutes.toString().padStart(2, '0');
+  const formattedSeconds = secs.toString().padStart(2, '0');
+  
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+};
+
 const ConversionsTable: React.FC<ConversionsTableProps> = ({
   conversions,
   loading,
@@ -189,7 +204,7 @@ const ConversionsTable: React.FC<ConversionsTableProps> = ({
                   )}
                 </TableCell>
                 <TableCell>{conversion.format}</TableCell>
-                <TableCell>{`${conversion.length} segundos`}</TableCell>
+                <TableCell>{formatTimeHHMMSS(conversion.length)}</TableCell>
                 <TableCell>
                   {format(new Date(conversion.createdAt), 'dd/MM/yyyy HH:mm')}
                 </TableCell>

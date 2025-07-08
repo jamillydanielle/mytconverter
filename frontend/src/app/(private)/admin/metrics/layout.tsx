@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Gerenciar Conversões - Admin',
-  description: 'Administração de conversões do sistema.',
+  title: 'Métricas de uso - Admin',
+  description: 'Administração das métricas de uso do sistema.',
 };
 
-export default function ConversionsLayout({
+export default function ConvertionsLayout({
   children,
 }: {
   children: React.ReactNode;

@@ -30,6 +30,21 @@ interface ConversionGroupsTableProps {
   onDownload: (group: ConversionDTO, format: 'mp3' | 'mp4') => Promise<boolean>;
 }
 
+// Função para formatar segundos em hh:mm:ss
+const formatTimeHHMMSS = (seconds: number): string => {
+  // Calcular horas, minutos e segundos
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  
+  // Formatar com zeros à esquerda quando necessário
+  const formattedHours = hours.toString().padStart(2, '0');
+  const formattedMinutes = minutes.toString().padStart(2, '0');
+  const formattedSeconds = secs.toString().padStart(2, '0');
+  
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+};
+
 const ConversionGroupsTable: React.FC<ConversionGroupsTableProps> = ({
   conversionGroups,
   loading,
@@ -106,7 +121,7 @@ const ConversionGroupsTable: React.FC<ConversionGroupsTableProps> = ({
                     "URL não disponível"
                   )}
                 </TableCell>
-                <TableCell>{`${group.length} segundos`}</TableCell>
+                <TableCell>{formatTimeHHMMSS(group.length)}</TableCell>
                 <TableCell>
                   {format(new Date(group.createdAt), 'dd/MM/yyyy HH:mm')}
                 </TableCell>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ThemeRegistry from "@/components/ThemeRegistry";
-import { AlertProvider } from "@/components/alert/AlertProvider"; // Seu AlertProvider
+import { AlertProvider } from "@/components/alert/AlertProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {

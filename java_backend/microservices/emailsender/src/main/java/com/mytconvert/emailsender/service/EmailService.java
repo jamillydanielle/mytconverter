@@ -28,13 +28,13 @@ public class EmailService {
 
 
     public void sendEmail(String receiver, String subject, String text) {
-        SimpleMailMessage mensagem = new SimpleMailMessage();
-        mensagem.setTo(receiver);
-        mensagem.setSubject(subject);
-        mensagem.setText(text);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(receiver);
+        message.setSubject(subject);
+        message.setText(text);
 
         try {
-            emailSender.send(mensagem);
+            emailSender.send(message);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Falha ao enviar email.");
         }
