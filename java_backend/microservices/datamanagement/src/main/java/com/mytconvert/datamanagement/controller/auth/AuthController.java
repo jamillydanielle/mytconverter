@@ -10,9 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.CredentialsExpiredException;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,19 +48,24 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
     try {
-
         Optional<User> usuario = userService.findByEmail(loginRequest.getEmail());
         boolean isActive = false;
-
         boolean userExists = usuario.isPresent();
+        
         if (userExists) {
             isActive = usuario.get().isActive();
         }
-
-        if(userExists && !isActive){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(createErrorResponse(ACCOUNT_DISABLED));
+        
+        if (!userExists) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(createErrorResponse(USER_NOT_FOUND));
         }
-
+        
+        if (!isActive) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(createErrorResponse(ACCOUNT_DISABLED));
+        }
+        
         if (userExists && isActive) {
             try {
                 String token = authService.authenticate(loginRequest);
@@ -72,25 +74,21 @@ public class AuthController {
                 response.put("message", "Login realizado com sucesso");
                 return ResponseEntity.ok(response);
             } catch (PasswordNeedsChangeException e) {
-                String token = e.getToken();
                 Map<String, String> response = new HashMap<>();
-                response.put("token", token);
-                response.put("message", "A senha precisa ser trocada");
+                response.put("token", e.getToken());
+                response.put("message", e.getMessage());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            } catch (LockedException e) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(createErrorResponse(ACCOUNT_LOCKED));
-            } catch (CredentialsExpiredException e) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(createErrorResponse(CREDENTIALS_EXPIRED));
-            } catch (BadCredentialsException | InsufficientAuthenticationException e) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createErrorResponse(INVALID_CREDENTIALS));
+            } catch (BadCredentialsException e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(createErrorResponse(INVALID_CREDENTIALS));
             }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createErrorResponse(USER_NOT_FOUND));
         }
+        
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(createErrorResponse("Erro de autenticação"));
     } catch (Exception e) {
-        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(createErrorResponse("Ocorreu um erro inesperado: " + e.getMessage()));
+            .body(createErrorResponse("Erro interno do servidor: " + e.getMessage()));
     }
 }
 

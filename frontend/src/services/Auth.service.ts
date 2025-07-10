@@ -5,6 +5,8 @@ interface ChangePasswordRequest {
 interface LoginUserResponse {
   message: string;
   token: string;
+  deactivated?: boolean;  // Novo campo para indicar conta desativada
+  email?: string;         // Email da conta desativada
 }
 
 interface LoginRequest {
@@ -118,6 +120,17 @@ export const loginUser = async (
         return { token: data.token || "", message: data.message };
       }
       
+      // Caso especial: conta desativada
+      if (response.status === 401 && data.message === "Conta desativada") {
+        console.log("[Auth] Conta desativada");
+        return { 
+          token: "", 
+          message: data.message,
+          deactivated: true,
+          email: username
+        };
+      }
+      
       console.error("[Auth] Resposta de erro:", data);
       throw new Error(data.message || `Erro no login: ${response.status}`);
     }
@@ -133,6 +146,47 @@ export const loginUser = async (
       throw error;
     }
     throw new Error("Ocorreu um erro desconhecido durante o login");
+  }
+};
+
+export const activateAccount = async (email: string, password: string): Promise<void> => {
+  try {
+    console.log("[Auth] Reativando conta:", email);
+    const response = await fetch(`${API_BASE_URL}/users/users/activate`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    // Verificar se a resposta não está ok
+    if (!response.ok) {
+      // Tentar obter o corpo da resposta como texto primeiro
+      const responseText = await response.text();
+      console.log("[Auth] Resposta de erro em texto:", responseText);
+      
+      let errorMessage = `Erro ao reativar conta (${response.status})`;
+      
+      // Tentar analisar como JSON se houver conteúdo
+      if (responseText && responseText.trim()) {
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.message || errorMessage;
+        } catch (jsonError) {
+          console.error("[Auth] Erro ao analisar resposta de erro como JSON:", jsonError);
+          // Se não for JSON válido, usar o texto da resposta como mensagem de erro
+          errorMessage = responseText || errorMessage;
+        }
+      }
+      
+      throw new Error(errorMessage);
+    }
+
+    console.log("[Auth] Conta reativada com sucesso");
+  } catch (error) {
+    console.error("[Auth] Erro ao reativar conta:", error);
+    throw error;
   }
 };
 

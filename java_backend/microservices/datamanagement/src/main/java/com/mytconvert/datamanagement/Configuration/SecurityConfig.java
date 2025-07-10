@@ -59,6 +59,10 @@ public class SecurityConfig {
 
                     auth.requestMatchers(new AntPathRequestMatcher("/users/users/createUser", "POST")).permitAll();
                     
+                    // Permitir explicitamente o método PUT para ativação de conta
+                    auth.requestMatchers(new AntPathRequestMatcher("/users/activate", "PUT")).permitAll();
+                    auth.requestMatchers(new AntPathRequestMatcher("/users/users/activate", "PUT")).permitAll();
+
                     // TEMPORARY: Permit all access to conversions endpoints for testing
                     auth.requestMatchers(new AntPathRequestMatcher("/conversions/**")).permitAll();
                     

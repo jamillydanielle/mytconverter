@@ -31,6 +31,10 @@ public class UserClaimsAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+         if (request.getRequestURI().equals("/users/activate") && request.getMethod().equals("PUT")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String claim = request.getHeader("x-user"); 
         

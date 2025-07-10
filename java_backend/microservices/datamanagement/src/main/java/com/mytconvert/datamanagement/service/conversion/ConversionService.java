@@ -13,10 +13,7 @@ import com.mytconvert.datamanagement.entity.conversion.Conversion;
 import com.mytconvert.datamanagement.entity.conversion.ConversionFormat;
 import com.mytconvert.datamanagement.entity.user.User;
 import com.mytconvert.datamanagement.repository.conversion.ConversionRepository;
-import com.mytconvert.security.utils.JwtUtils;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

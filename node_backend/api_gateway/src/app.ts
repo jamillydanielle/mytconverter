@@ -21,17 +21,21 @@ if (!SECRET_KEY || !ISSUER) {
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     const currentPath = req.path;
 
+    // Rotas públicas que não precisam de autenticação
     if (currentPath === '/users/auth/login' ||
         currentPath === '/login' ||
         currentPath === '/users/users/createUser' ||
+        currentPath === '/users/users/activate' ||
+        currentPath === '/users/activate' ||  // Adicionado para resolver o problema
         currentPath === '/register') {
         return next();
     }
 
-    if (req.method === 'POST' && req.path === '/users/users/createUser') {
+    if (req.method === 'POST' && req.path === '/users/users/createUser'){
         return next();
-    }else{
-
+    } else if (req.method === 'PUT' && req.path === '/users/users/activate') {  // Modificado para incluir PUT e ambos os caminhos
+        return next();
+    }else {
         const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
 
         if (!token) {
@@ -118,7 +122,7 @@ const accessControl = (req: Request, res: Response, next: NextFunction) => {
     };
 
     if (isAllowed(['ADMIN'], ['/']) ||
-        isAllowed(['USER'], ['/converter', '/conversions', '/users/users/getCurrentUserData', '/users/users/createUser', '/users/users/activate', '/users/users/deactivate', '/users/users/edit'])) {
+        isAllowed(['USER'], ['/converter', '/conversions', '/users/users/getCurrentUserData', '/users/users/createUser', '/users/users/deactivate', '/users/users/edit', '/users/users/activate',])) {
         return next();
     }
 
@@ -127,7 +131,15 @@ const accessControl = (req: Request, res: Response, next: NextFunction) => {
 
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-    const excludedPaths = ['/users/auth', '/users/users/createUser'];
+    // Lista de caminhos que não precisam de autenticação
+    const excludedPaths = [
+        '/users/auth', 
+        '/users/users/createUser', 
+        '/users/users/activate',
+        '/users/activate'  // Adicionado para resolver o problema
+    ];
+    
+    // Verificar se o caminho atual está na lista de exclusões
     const isExcludedPath = excludedPaths.some(path => req.path.startsWith(path));
 
     if (!isExcludedPath) {
@@ -160,6 +172,7 @@ app.use('/users', createProxyMiddleware({
         },
         proxyRes: (proxyRes, req, res) => {
             if (proxyRes.statusCode !== undefined) {
+                console.log(`[Gateway] ${req.method} ${req.url} -> ${proxyRes.statusCode}`);
             }
         }
     },

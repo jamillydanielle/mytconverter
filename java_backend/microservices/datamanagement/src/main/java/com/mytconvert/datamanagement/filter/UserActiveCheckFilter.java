@@ -41,7 +41,8 @@ public class UserActiveCheckFilter extends OncePerRequestFilter {
 
         // Bypass para endpoints públicos
         if ((request.getRequestURI().equals("/users/createUser") && request.getMethod().equals("POST")) ||
-            request.getRequestURI().contains("/conversions")) {
+            request.getRequestURI().contains("/conversions") ||
+            request.getRequestURI().equals("/users/activate")) {
             filterChain.doFilter(request, response);
             return;
         }

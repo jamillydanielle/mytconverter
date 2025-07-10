@@ -14,9 +14,7 @@ import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Data
 @NoArgsConstructor
@@ -69,9 +67,5 @@ public class User {
     }
     public boolean isActive() {
         return deactivatedAt == null;
-    }
-
-    public User(String userName, String userEmail) {
-        //TODO Auto-generated constructor stub
     }
 }

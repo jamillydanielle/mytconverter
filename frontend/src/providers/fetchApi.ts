@@ -12,6 +12,7 @@ const AUTH_FREE_ENDPOINTS = [
     '/login',
     '/users/auth/login',
     '/users/users/createUser',
+    '/users/users/activate',
     '/auth/check-token',
     '/register',
     '/health'
@@ -62,8 +63,18 @@ export async function fetchWrapper<T>(
         defaultHeaders["Authorization"] = `Bearer ${token}`;
     }
 
-    if (options.method?.toUpperCase() === 'POST' && endpoint === '/users/users/createUser') {
-        console.log(`[fetchApi] Configurando cabeçalhos para criação de usuário`);
+    let requiresAuth = true;
+
+    if (options.method?.toUpperCase() === 'POST' && endpoint === '/users/users/createUser'){
+        requiresAuth = false;
+    }
+
+    if(options.method?.toUpperCase() === 'PUT' && endpoint === '/users/users/activate'){
+        requiresAuth = false;
+    }
+
+    if(requiresAuth.valueOf() === false) {
+        console.log(`[fetchApi] Configurando cabeçalhos sem token`);
         mergedOptions = {
             ...options,
             headers: {

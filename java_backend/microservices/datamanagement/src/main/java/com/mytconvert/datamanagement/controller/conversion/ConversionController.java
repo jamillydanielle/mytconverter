@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -25,8 +24,6 @@ import com.mytconvert.datamanagement.utils.RequestValidator;
 import com.mytconvert.datamanagement.utils.ValidationUtils;
 import com.mytconvert.security.utils.JwtUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.mytconvert.datamanagement.service.user.UserService;
 
@@ -36,7 +33,6 @@ public class ConversionController {
     
     private final ConversionService conversionService;
     private final UserService userService;
-    private static final Logger logger = LoggerFactory.getLogger(ConversionController.class);
 
     @Autowired
     public ConversionController(ConversionService conversionService, UserService userService) {

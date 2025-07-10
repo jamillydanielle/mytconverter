@@ -13,9 +13,9 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Usuário não autenticado: Acesso apenas a /register, /login e /users/createUser
+  // Usuário não autenticado: Acesso apenas a /register, /login, /users/users/createUser e /users/users/activate
   if (!token) {
-    if (currentPath === "/register" || currentPath === "/login" || currentPath === '/users/users/createUser') {
+    if (currentPath === "/register" || currentPath === "/login" || currentPath === '/users/users/createUser' || '/users/users/activate') {
       return NextResponse.next();
     } else {
       return NextResponse.redirect(new URL("/login", req.url));

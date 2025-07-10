@@ -7,11 +7,6 @@ interface UsersResponse {
     totalPages : number;
 }
 
-interface UpdateUserResponse {
-    message: string;
-    userName: string;
-}
-
 export const createUser = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
     const response = await fetchWrapper<User>('/users/users/createUser', {
         method: 'POST',
@@ -41,8 +36,8 @@ export const getCurrentUserData = async(): Promise<User> => {
     return response;
 }
 
-export const updateUser = async (userData: Partial<User>): Promise<UpdateUserResponse> => {
-    const response = await fetchWrapper<UpdateUserResponse>(`/users/users/edit`, {
+export const updateUser = async (userData: Partial<User>): Promise<User> => {
+    const response = await fetchWrapper<User>(`/users/users/edit`, {
         method: 'PUT',
         body: JSON.stringify(userData)
     });
