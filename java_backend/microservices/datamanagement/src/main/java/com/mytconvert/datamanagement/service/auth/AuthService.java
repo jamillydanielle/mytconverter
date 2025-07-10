@@ -44,13 +44,7 @@ public class AuthService {
     public String authenticate(LoginRequest loginRequest) throws JsonProcessingException, JWTCreationException {
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
         
-        if (passwordEncoder.matches("password", userDetails.getPassword())) {
-            UserAuthenticated userAuthenticated = (UserAuthenticated) userDetails;
-            String token =  jwtService.generateToken(userAuthenticated, loginRequest.isRememberMe());
-            throw new PasswordNeedsChangeException("A senha precisa ser trocada", token);
-        }
-        
-        try {
+         try {
             authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );

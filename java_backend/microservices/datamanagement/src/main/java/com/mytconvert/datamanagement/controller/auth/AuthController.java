@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,9 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mytconvert.datamanagement.dto.ChangePasswordRequest;
 import com.mytconvert.datamanagement.dto.LoginRequest;
 import com.mytconvert.datamanagement.entity.user.User;
-import com.mytconvert.datamanagement.entity.user.UserType;
 import com.mytconvert.datamanagement.service.auth.AuthService;
-import com.mytconvert.datamanagement.service.auth.PasswordNeedsChangeException;
 import com.mytconvert.datamanagement.service.user.UserService;
 import com.mytconvert.datamanagement.utils.RequestValidator;
 
@@ -73,12 +70,7 @@ public class AuthController {
                 response.put("token", token);
                 response.put("message", "Login realizado com sucesso");
                 return ResponseEntity.ok(response);
-            } catch (PasswordNeedsChangeException e) {
-                Map<String, String> response = new HashMap<>();
-                response.put("token", e.getToken());
-                response.put("message", e.getMessage());
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            } catch (BadCredentialsException e) {
+            }catch (BadCredentialsException e) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(createErrorResponse(INVALID_CREDENTIALS));
             }
@@ -92,36 +84,12 @@ public class AuthController {
     }
 }
 
-    @PostMapping("/createUser")
-    public ResponseEntity<String> createUser(@RequestBody Map<String, Object> payload) {
-        
-        List<String> requiredFields = Arrays.asList("name", "email", "password");
-        RequestValidator.validateFieldsForMap(payload, requiredFields);
-
-        String userName = (String) payload.get("name");
-        String userEmail = (String) payload.get("email");
-        String senha = (String) payload.get("password");
-
-        User user = new User(userName, userEmail, senha, UserType.USER);
-
-        User createdUser = userService.createUser(user);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("{\"message\": \"Usuario cadastrado\", \"userName\": \"" + createdUser.getName() + "\"}");
-    }
-
-    @GetMapping("/is-logged-in")
-    public ResponseEntity<Map<String, Boolean>> isLoggedIn() {
-        Map<String, Boolean> response = new HashMap<>();
-        boolean isLoggedUser = authService.isLoggedIn();
-        response.put("isLoggedIn", isLoggedUser);
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/change-password/{email}")
+    @PutMapping("/changePassword/{email}")
     public ResponseEntity<?> changePassword(@PathVariable String email, @RequestBody ChangePasswordRequest request) {
         List<String> requiredFields = Arrays.asList("newPassword");
+
         RequestValidator.validateFields(request, requiredFields);
+
         RequestValidator.validatePasswordStrength(request.getNewPassword());
     
         try {

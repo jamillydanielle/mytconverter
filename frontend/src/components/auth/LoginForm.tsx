@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import NextLink from 'next/link';
-import { Box, Typography, Paper, Divider, FormControlLabel, Checkbox, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { Box, Typography, Paper, Divider, FormControlLabel, Checkbox, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Link } from '@mui/material';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { useLoginForm } from '@/hooks/useLoginForm'; 
@@ -22,7 +22,7 @@ const LoginForm: React.FC = () => {
         confirmPassword,
         setConfirmPassword,
         isLoading,
-        showReactivateDialog,
+        showActivateDialog,
         handleActivateAccount,
         handleCancelReactivation
     } = useLoginForm();
@@ -53,7 +53,7 @@ const LoginForm: React.FC = () => {
         changePassword, 
         hasError: !!loginHookError, 
         isLoading,
-        showReactivateDialog
+        showActivateDialog
     });
 
     return (
@@ -76,17 +76,29 @@ const LoginForm: React.FC = () => {
                     />
                     
                     {!changePassword ? (
-                        <Input
-                            label="Senha"
-                            id="password"
-                            name="password"
-                            type="password"
-                            value={credentials.password}
-                            onChange={handleChange}
-                            placeholder="Sua senha"
-                            required
-                            disabled={isLoading}
-                        />
+                        <>
+                            <Input
+                                label="Senha"
+                                id="password"
+                                name="password"
+                                type="password"
+                                value={credentials.password}
+                                onChange={handleChange}
+                                placeholder="Sua senha"
+                                required
+                                disabled={isLoading}
+                            />
+                            <Box sx={{ textAlign: 'right', mt: 1, mb: 2 }}>
+                                <Link 
+                                    component={NextLink} 
+                                    href="/forgot-password" 
+                                    variant="body2"
+                                    underline="hover"
+                                >
+                                    Esqueceu sua senha?
+                                </Link>
+                            </Box>
+                        </>
                     ) : (
                         <>
                             <Input
@@ -162,16 +174,16 @@ const LoginForm: React.FC = () => {
 
             {/* Diálogo de reativação de conta */}
             <Dialog
-                open={showReactivateDialog}
+                open={showActivateDialog}
                 onClose={handleCancelReactivation}
-                aria-labelledby="reactivate-dialog-title"
-                aria-describedby="reactivate-dialog-description"
+                aria-labelledby="activate-dialog-title"
+                aria-describedby="activate-dialog-description"
             >
-                <DialogTitle id="reactivate-dialog-title">
+                <DialogTitle id="activate-dialog-title">
                     Conta Desativada
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="reactivate-dialog-description">
+                    <DialogContentText id="activate-dialog-description">
                         Esta conta está desativada. Deseja reativá-la para continuar?
                     </DialogContentText>
                 </DialogContent>

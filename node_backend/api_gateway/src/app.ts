@@ -26,16 +26,16 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
         currentPath === '/login' ||
         currentPath === '/users/users/createUser' ||
         currentPath === '/users/users/activate' ||
-        currentPath === '/users/activate' ||  // Adicionado para resolver o problema
+        currentPath === '/users/activate' ||
+        currentPath.startsWith('/users/auth/passwordReset') ||
         currentPath === '/register') {
         return next();
     }
 
-    if (req.method === 'POST' && req.path === '/users/users/createUser'){
+    if (req.method === 'POST' && req.path === '/users/users/createUser' || 
+        req.method === 'PUT' && (req.path === '/users/users/activate' || req.path === '/users/activate')) {
         return next();
-    } else if (req.method === 'PUT' && req.path === '/users/users/activate') {  // Modificado para incluir PUT e ambos os caminhos
-        return next();
-    }else {
+    } else {
         const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
 
         if (!token) {
@@ -122,7 +122,7 @@ const accessControl = (req: Request, res: Response, next: NextFunction) => {
     };
 
     if (isAllowed(['ADMIN'], ['/']) ||
-        isAllowed(['USER'], ['/converter', '/conversions', '/users/users/getCurrentUserData', '/users/users/createUser', '/users/users/deactivate', '/users/users/edit', '/users/users/activate',])) {
+        isAllowed(['USER'], ['/converter', '/conversions', '/users/users/getCurrentUserData', '/users/users/createUser', '/users/users/deactivate', '/users/users/edit'])) {
         return next();
     }
 
@@ -136,7 +136,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
         '/users/auth', 
         '/users/users/createUser', 
         '/users/users/activate',
-        '/users/activate'  // Adicionado para resolver o problema
+        '/users/activate'
     ];
     
     // Verificar se o caminho atual está na lista de exclusões
@@ -158,7 +158,9 @@ app.use('/users', createProxyMiddleware({
     changeOrigin: true,
     pathRewrite: {
         '^/users/users(.*)$': '/users$1',
-        '^/users/auth/login': '/auth/login'    },
+        '^/users/auth/login': '/auth/login',
+        '^/users/auth/passwordReset(.*)$': '/auth/passwordReset$1'
+    },
     on: {
         proxyReq: (proxyReq, req, res) => {
             
@@ -168,11 +170,6 @@ app.use('/users', createProxyMiddleware({
             
             if (req.headers['authorization']) {
                 proxyReq.setHeader('authorization', req.headers['authorization']);
-            }
-        },
-        proxyRes: (proxyRes, req, res) => {
-            if (proxyRes.statusCode !== undefined) {
-                console.log(`[Gateway] ${req.method} ${req.url} -> ${proxyRes.statusCode}`);
             }
         }
     },

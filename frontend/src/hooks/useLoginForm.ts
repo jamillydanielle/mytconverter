@@ -13,7 +13,7 @@ export const useLoginForm = () => {
     const [changePassword, setChangePassword] = useState(false);
     const [loginSuccess, setLoginSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [showReactivateDialog, setShowReactivateDialog] = useState(false);
+    const [showActivateDialog, setShowActivateDialog] = useState(false);
     const [deactivatedEmail, setDeactivatedEmail] = useState("");
     const { addAlert } = useAlert();
     const router = useRouter();
@@ -89,7 +89,7 @@ export const useLoginForm = () => {
             } else if (result.deactivated) {
                 console.log("[LoginForm] Conta desativada");
                 setDeactivatedEmail(result.email || credentials.email);
-                setShowReactivateDialog(true);
+                setShowActivateDialog(true);
                 setError("");
             } else {
                 if (result.token) {
@@ -141,7 +141,7 @@ export const useLoginForm = () => {
             // Passando a senha junto com o email para reativar a conta
             await activateAccount(deactivatedEmail, credentials.password);
             addAlert("Conta reativada com sucesso!", "success");
-            setShowReactivateDialog(false);
+            setShowActivateDialog(false);
             
             // Tentar fazer login automaticamente após reativar a conta
             try {
@@ -178,7 +178,7 @@ export const useLoginForm = () => {
     };
 
     const handleCancelReactivation = () => {
-        setShowReactivateDialog(false);
+        setShowActivateDialog(false);
         setError("Login cancelado. A conta permanece desativada.");
     };
 
@@ -194,7 +194,7 @@ export const useLoginForm = () => {
         changePassword,
         loginSuccess,
         isLoading,
-        showReactivateDialog,
+        showActivateDialog,
         handleActivateAccount,
         handleCancelReactivation
     };

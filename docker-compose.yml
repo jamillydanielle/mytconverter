@@ -32,11 +32,13 @@ services:
       - JWT_SECRET_KEY=s/4KMb61LOrMYYAn4rfaQYSgr+le5SMrsMzKw8G6bXc=
       - SECRET_KEY=hzdnRC+bRXml8WTloSvSCX/NhuyytESvL8ntJc03cNE=
       - JWT_ISSUER=user-api
+      - SPRING_MAIL_HOST=mailhog
       - SPRING_MAIL_PORT=1025
       - SERVICE_NAME=emailsender
     depends_on:
       - db
       - datamanagement
+      - mailhog
     ports:
       - "8085:8085"
 
@@ -91,6 +93,13 @@ services:
       - db
     ports:
       - "8081:8081"
+      
+  # Servidor SMTP para testes de email
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
 
 volumes:
   redis_data:

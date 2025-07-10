@@ -15,18 +15,23 @@ public class EmailController {
     @Autowired
     private EmailService emailService;
 
-    @PostMapping("/send-email")
-    public ResponseEntity<String> sendEmail(@RequestParam String receiverEmail, @RequestParam String result) {
-        if (receiverEmail == null || receiverEmail.isEmpty()) {
-            return ResponseEntity.badRequest().body("Informe o email do destinatario.");
-        }
-
-        String subject = "Test ";
-        String text = "Envio de email teste";
-
-        emailService.sendEmail(receiverEmail, subject, text);
-
-        return ResponseEntity.ok("Email enviado com sucesso!");
+   @PostMapping("/sendPasswordResetEmail")
+    public ResponseEntity<String> sendPasswordResetEmail(
+            @RequestParam String email,
+            @RequestParam String resetLink) {
+        
+        String subject = "Recuperação de Senha - MyTConvert";
+        String message = "Olá,\n\n" +
+                "Recebemos uma solicitação para redefinir sua senha no MyTConvert.\n\n" +
+                "Para redefinir sua senha, clique no link abaixo ou copie e cole no seu navegador:\n\n" +
+                resetLink + "\n\n" +
+                "Este link é válido por 30 minutos.\n\n" +
+                "Se você não solicitou a redefinição de senha, ignore este email.\n\n" +
+                "Atenciosamente,\n" +
+                "Equipe MyTConvert";
+        
+        emailService.sendEmail(email, subject, message);
+        
+        return ResponseEntity.ok("Email de reset enviado com sucesso");
     }
-
 }

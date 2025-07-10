@@ -24,7 +24,7 @@ export const changeUserPassword = async (
 ): Promise<string> => {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/users/auth/change-password/${encodeURIComponent(email)}`,
+      `${API_BASE_URL}/users/auth/changePassword/${encodeURIComponent(email)}`,
       {
         method: "PUT",
         headers: {

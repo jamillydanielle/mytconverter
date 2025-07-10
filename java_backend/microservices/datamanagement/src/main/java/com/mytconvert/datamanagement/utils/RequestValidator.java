@@ -47,16 +47,16 @@ public class RequestValidator {
                 if (fieldName.equals("email")) {
                     if (!(value instanceof String) || !isValidEmail((String) value)) {
                         throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "The field 'email' must be a valid email address.");
+                            "O campo 'email' deve ter um email valido.");
                     }
                 }
             }
         } catch (NoSuchFieldException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "Field specified does not exist: " + e.getMessage());
+                "O campo especificado nao existe: " + e.getMessage());
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Error accessing JSON fields: " + e.getMessage());
+                "Erro ao acessar os campos do Json: " + e.getMessage());
         }
     }
 

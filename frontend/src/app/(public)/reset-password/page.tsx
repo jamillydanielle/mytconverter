@@ -1,18 +1,18 @@
 import AppLayout from '@/components/layout/AppLayout';
-import RegisterForm from '@/components/auth/RegisterForm'; 
+import PasswordResetForm from '@/components/auth/PasswordResetForm';
 import type { Metadata } from 'next';
-import { Box, Container } from '@mui/material';
+import { Container } from '@mui/material';
 
 export const metadata: Metadata = {
-  title: 'Criar Conta - MytConvert',
-  description: 'Crie sua conta no MytConvert.',
+  title: 'Redefinir Senha - MytConvert',
+  description: 'Redefina sua senha do MytConvert.',
 };
 
-export default function RegisterPage() {
+export default function ResetPasswordPage() {
   return (
-    <AppLayout sidebarState="register"> 
+    <AppLayout sidebarState="login">
       <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', pt: { xs: 2, md: 4 } }}>
-        <RegisterForm />
+        <PasswordResetForm />
       </Container>
     </AppLayout>
   );

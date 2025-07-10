@@ -113,14 +113,14 @@ public class AuthControllerTest {
         changePasswordRequest.setNewPassword("New@Secure123");
 
         mockMvc.perform(
-                put("/auth/change-password/{email}", testUser.getEmail())
+                put("/auth/changePassword/{email}", testUser.getEmail())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Senha atualizada com sucesso."));
 
         mockMvc.perform(
-                put("/auth/change-password/nonexistent@example.com")
+                put("/auth/changePassword/nonexistent@example.com")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
                 .andExpect(status().isNotFound())
@@ -128,7 +128,7 @@ public class AuthControllerTest {
 
         changePasswordRequest.setNewPassword("");
         mockMvc.perform(
-                put("/auth/change-password/{email}", user.getEmail())
+                put("/auth/changePassword/{email}", user.getEmail())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
                 .andExpect(status().isBadRequest())
@@ -136,7 +136,7 @@ public class AuthControllerTest {
 
         changePasswordRequest.setNewPassword("weak");
         mockMvc.perform(
-                put("/auth/change-password/{email}", user.getEmail())
+                put("/auth/changePassword/{email}", user.getEmail())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
                 .andExpect(status().isBadRequest())

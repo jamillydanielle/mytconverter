@@ -1,18 +1,18 @@
 import AppLayout from '@/components/layout/AppLayout';
-import LoginForm from '@/components/auth/LoginForm';
+import PasswordResetRequestForm from '@/components/auth/PasswordResetRequestForm';
 import type { Metadata } from 'next';
-import { Box, Container } from '@mui/material';
+import { Container } from '@mui/material';
 
 export const metadata: Metadata = {
-  title: 'Login - MytConvert',
-  description: 'Acesse sua conta no MytConvert.',
+  title: 'Recuperar Senha - MytConvert',
+  description: 'Recupere sua senha no MytConvert.',
 };
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   return (
     <AppLayout sidebarState="login">
       <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', pt: { xs: 2, md: 4 } }}>
-        <LoginForm />
+        <PasswordResetRequestForm />
       </Container>
     </AppLayout>
   );

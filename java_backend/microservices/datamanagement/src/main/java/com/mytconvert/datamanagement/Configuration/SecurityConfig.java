@@ -54,6 +54,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
 
                     auth.requestMatchers(new AntPathRequestMatcher("/auth/login")).permitAll(); // Permite requisições apenas para rotas com prefixo /auth
+                    
+                    // Endpoints de recuperação de senha
+                    auth.requestMatchers(new AntPathRequestMatcher("/auth/passwordReset/**")).permitAll();
 
                     auth.requestMatchers(new AntPathRequestMatcher("/users/createUser", "POST")).permitAll(); 
 
