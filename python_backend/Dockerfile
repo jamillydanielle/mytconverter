@@ -1,27 +1,29 @@
-FROM python:3.12-alpine
+# Dockerfile para o FastAPI Backend
 
-ARG APP_NAME=converter
+# Usar uma imagem oficial do Python como base
+FROM python:3.11-slim
+
+# Instala ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg curl && rm -rf /var/lib/apt/lists/*
+
+# Define o diretório de trabalho dentro do container
 WORKDIR /app
 
-RUN apk update && apk add --no-cache \
-    gcc \
-    musl-dev \
-    postgresql-dev \
-    python3-dev \
-    ffmpeg
+# Copia o requirements.txt para o container
+COPY requirements.txt .
 
-RUN ffmpeg -version && ffprobe -version
+# Instala as dependências
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache-dir poetry
+# Copia o restante da aplicação para dentro do container
+COPY . .
 
-COPY ${APP_NAME}/pyproject.toml ${APP_NAME}/poetry.lock* ./
-
-RUN poetry config virtualenvs.create false
-
-RUN poetry install --no-interaction
-
-COPY ${APP_NAME} ./
+# Ajusta as permissões de execução para os arquivos que precisam de execução
+RUN chmod +x /app/app/messaging/rabbitmq_consumer.py
 
 EXPOSE 8081
 
-CMD ["uvicorn", "converter.app.main:app", "--host", "0.0.0.0", "--port", "8081", "--reload"]
+ENV PYTHONPATH=/app
+
+# Comando para rodar o FastAPI com Uvicorn
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8081", "--reload"]

@@ -1,28 +1,12 @@
-from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 import os
-import logging
 import json
 
-load_dotenv ()
-
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-
-DB_HOST = os.environ.get("DB_HOST")
-DB_PORT = os.environ.get("DB_PORT")
-DATABASE_NAME = os.environ.get("DATABASE_NAME")
-DB_USER = os.environ.get("DB_USER")
-DB_PASS = os.environ.get("DB_PASS")
-JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
-JWT_ISSUER = os.environ.get("JWT_ISSUER")
-
+# Configurações de ambiente
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+JWT_ISSUER = os.getenv("JWT_ISSUER")
 ALGORITHMS = ["HS256"]
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
