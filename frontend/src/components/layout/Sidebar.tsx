@@ -1,13 +1,16 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import NextLink from 'next/link';
-import { Box, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, CircularProgress } from '@mui/material';
 import Button from '@/components/ui/Button';
-import { Home, Music, Settings, Video, Shield, LogIn, LogOut as LogOutIcon } from 'lucide-react';
+import { Home, Music, Settings, Video, Shield, LogIn, LogOut as LogOutIcon, Edit } from 'lucide-react';
 import { useSessionIdentifier } from '@/hooks/useSessionIdentifier';
-import { removeToken } from '@/utils/token';
+import { removeToken, getToken } from '@/utils/token';
 import { useRouter } from 'next/navigation';
 import { UserType } from '@/types'; 
+import { logoutUser } from '@/services/Auth.service';
+import { useAlert } from '@/components/alert/AlertProvider';
+import { getCurrentUserData } from '@/services/Users.service';
 
 interface SidebarProps {
   currentPage?: 'dashboard' | 'login' | 'register';
@@ -16,18 +19,60 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ currentPage }) => {
   const router = useRouter();
   const { userData, tabs, selectedTabIndex, handleTabChange } = useSessionIdentifier();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [userName, setUserName] = useState<string>("myAccount");
+  const { addAlert } = useAlert();
 
   const sidebarBackgroundColor = '#1f2937';
   const textColor = '#ffffff';
   const hoverBgColor = 'rgba(255, 255, 255, 0.08)';
 
-  const handleLogout = () => {
-    removeToken();
-    router.push('/login'); 
-    router.refresh();    
+  // Efeito para carregar o nome do usuário atual do backend
+  useEffect(() => {
+    const fetchUserName = async () => {
+      // Se temos dados do usuário do token, definimos o nome inicialmente
+      if (userData?.user?.name) {
+        setUserName(userData.user.name);
+      }
+      
+      // Se o usuário estiver logado, buscamos os dados atualizados do backend
+      if (userData?.user?.id) {
+        try {
+          const currentUserData = await getCurrentUserData();
+          if (currentUserData && currentUserData.name) {
+            setUserName(currentUserData.name);
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados atualizados do usuário:", error);
+          // Mantemos o nome do token se houver erro
+        }
+      }
+    };
+
+    fetchUserName();
+  }, [userData]); // Dependência em userData para recarregar quando o token mudar
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      const token = getToken();
+      if (token) {
+        await logoutUser(token);
+        addAlert("Logout realizado com sucesso", "success");
+      }
+      removeToken();
+      router.push('/login'); 
+      router.refresh();
+    } catch (error) {
+      console.error("Error during logout:", error);
+      addAlert("Erro ao realizar logout", "error");
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
-  const userDisplayName = userData?.user?.name || "myAccount";
+  // Usamos o nome do estado em vez do nome do token
+  const userDisplayName = userName || "myAccount";
 
   return (
     <Box
@@ -42,9 +87,23 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage }) => {
       }}
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h5" component={NextLink} href={tabs[0]?.path || "/"} sx={{ color: textColor, textDecoration: 'none', fontWeight: 'bold' }}>
-          {userDisplayName}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="h5" component={NextLink} href={tabs[0]?.path || "/"} sx={{ color: textColor, textDecoration: 'none', fontWeight: 'bold' }}>
+            {userDisplayName}
+          </Typography>
+          {userData && (
+            <Button
+              variant="text"
+              component={NextLink}
+              href="/profile/edit"
+              size="small"
+              sx={{ color: textColor, ml: 1, minWidth: 'auto', p: 0.5 }}
+              disabled={isLoggingOut}
+            >
+              <Edit size={16} />
+            </Button>
+          )}
+        </Box>
         {!userData && (currentPage !== 'login' && currentPage !== 'register') && (
           <Button
             variant="outlined"
@@ -62,10 +121,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage }) => {
             variant="outlined"
             onClick={handleLogout}
             size="small"
+            disabled={isLoggingOut}
             sx={{ color: textColor, borderColor: 'rgba(255,255,255,0.5)', '&:hover': { borderColor: textColor, bgcolor: hoverBgColor } }}
-            startIcon={<LogOutIcon size={18}/>}
+            startIcon={isLoggingOut ? <CircularProgress size={16} color="inherit" /> : <LogOutIcon size={18}/>}
           >
-            Logout
+            {isLoggingOut ? "Saindo..." : "Logout"}
           </Button>
         )}
       </Box>
@@ -84,6 +144,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage }) => {
                 <ListItemButton
                   selected={index === selectedTabIndex}
                   onClick={() => handleTabChange(index)}
+                  disabled={isLoggingOut}
                   sx={{
                     borderRadius: 1,
                     '&:hover': { bgcolor: hoverBgColor },

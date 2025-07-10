@@ -148,7 +148,7 @@ Siga estes passos para configurar e rodar o projeto:
     Para criar um usuário administrador no sistema, você precisa executar um comando dentro do container `datamanagement`.  Primeiro, identifique o nome ou ID do container `datamanagement` usando `docker ps`.  Em seguida, execute o seguinte comando, substituindo `[nome do container ou id]` pelo valor correto:
 
     ```bash
-    podman exec -it mytconverter-datamanagement-1 bash
+    podman exec -it mytconverter_datamanagement_1 bash
     java -jar datamanagement.jar create-admin "Administrador mytconvert" admin@example.com "Password123*" --server.port=0
     ```
 

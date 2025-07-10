@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Box, Typography, Link as MuiLink, Paper, Checkbox, FormControlLabel } from '@mui/material';
+import { Box, Typography, Link as MuiLink, Paper, Checkbox, FormControlLabel, CircularProgress } from '@mui/material';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { useLoginForm } from '@/hooks/useLoginForm'; 
@@ -19,10 +19,20 @@ const LoginForm: React.FC = () => {
         changePassword,
         password,
         confirmPassword,
+        isLoading
     } = useLoginForm();
 
     useEffect(() => {
+        console.log("[LoginForm] Componente montado");
+        return () => {
+            console.log("[LoginForm] Componente desmontado");
+        };
+    }, []);
+
+    useEffect(() => {
+        console.log("[LoginForm] Estado de loginSuccess alterado:", loginSuccess);
         if (loginSuccess) {
+            console.log("[LoginForm] Login bem-sucedido, redirecionando para a página inicial");
             router.push('/');
             router.refresh();
         }
@@ -30,8 +40,15 @@ const LoginForm: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log("[LoginForm] Formulário enviado");
         await handleLogin(); // handleLogin já é async
     };
+
+    console.log("[LoginForm] Renderizando com estado:", { 
+        changePassword, 
+        hasError: !!loginHookError, 
+        isLoading 
+    });
 
     return (
         <Paper elevation={3} sx={{ maxWidth: 400, mx: 'auto', mt: 8, p: 4 }}>
@@ -49,7 +66,7 @@ const LoginForm: React.FC = () => {
                     placeholder="seuemail@exemplo.com"
                     required
                     autoFocus
-                    disabled={changePassword && !!credentials.email}
+                    disabled={isLoading || (changePassword && !!credentials.email)}
                 />
 
                 {!changePassword && (
@@ -62,6 +79,7 @@ const LoginForm: React.FC = () => {
                         onChange={handleChange}
                         placeholder="Sua senha"
                         required
+                        disabled={isLoading}
                     />
                 )}
 
@@ -76,6 +94,7 @@ const LoginForm: React.FC = () => {
                             onChange={handleChange}
                             placeholder="Digite sua nova senha"
                             required
+                            disabled={isLoading}
                             helperText="Mín. 8 caracteres, maiúscula, minúscula, número, especial."
                         />
                         <Input
@@ -87,6 +106,7 @@ const LoginForm: React.FC = () => {
                             onChange={handleChange}
                             placeholder="Confirme sua nova senha"
                             required
+                            disabled={isLoading}
                         />
                     </>
                 )}
@@ -99,6 +119,7 @@ const LoginForm: React.FC = () => {
                                 checked={credentials.rememberMe}
                                 onChange={handleChange}
                                 color="primary"
+                                disabled={isLoading}
                             />
                         }
                         label="Lembrar-me"
@@ -117,8 +138,13 @@ const LoginForm: React.FC = () => {
                     fullWidth
                     variant="contained"
                     sx={{ mt: 3, mb: 2 }}
+                    disabled={isLoading}
                 >
-                    {changePassword ? "Alterar Senha e Entrar" : "Login"}
+                    {isLoading ? (
+                        <CircularProgress size={24} color="inherit" />
+                    ) : (
+                        changePassword ? "Alterar Senha e Entrar" : "Login"
+                    )}
                 </Button>
 
                 {!changePassword && (

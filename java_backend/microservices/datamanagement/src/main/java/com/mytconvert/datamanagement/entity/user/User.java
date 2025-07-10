@@ -70,4 +70,8 @@ public class User {
     public boolean isActive() {
         return deactivatedAt == null;
     }
+
+    public User(String userName, String userEmail) {
+        //TODO Auto-generated constructor stub
+    }
 }

@@ -16,7 +16,11 @@ import com.mytconvert.datamanagement.entity.user.UserType;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
-    User findByName(String name);
+
+    default User findByEmailOrThrow(String email){
+        return findByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario nao encontrado"));
+    }
+
     default User findByIdOrThrow(Long id) {
         return findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario nao encontrado"));
     }

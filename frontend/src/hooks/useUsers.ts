@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { User } from '@/types/User';
 import { getToken } from '@/utils/token';
-import { activateUser, deactivateUser, getUserById, getUsers } from '@/services/Users.service';
+import { deactivateUser, getUserById, getUsers } from '@/services/Users.service';
 import { UserSession, getUserSessions } from '@/services/UserSession.service';
 
 // Interface para usuário com informações de sessão
@@ -46,23 +46,13 @@ export const useUsers = () => {
     }
   }, [pageSize]);
 
-  const deactiveUser = useCallback(async (userId: string) => {
+  const deactiveUser = useCallback(async () => {
     try {
-      await deactivateUser(userId);
+      await deactivateUser(); // Removido o parâmetro userId
       // Atualizar a lista de usuários após desativar
       fetchUsers(currentPage);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao desativar usuário');
-    }
-  }, [currentPage, fetchUsers]);
-
-  const activateUserById = useCallback(async (userId: string) => {
-    try {
-      await activateUser(userId);
-      // Atualizar a lista de usuários após ativar
-      fetchUsers(currentPage);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao ativar usuário');
     }
   }, [currentPage, fetchUsers]);
 
@@ -88,7 +78,6 @@ export const useUsers = () => {
     error, 
     fetchUsers, 
     deactiveUser,
-    activateUserById,
     currentPage, 
     setCurrentPage, 
     totalPages, 

@@ -11,9 +11,12 @@ import org.springframework.web.server.ResponseStatusException;
 import com.mytconvert.datamanagement.entity.user.User;
 import com.mytconvert.datamanagement.entity.user.UserType;
 import com.mytconvert.datamanagement.repository.user.UserRepository;
+import com.mytconvert.datamanagement.utils.RequestValidator;
+import com.mytconvert.security.utils.JwtUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -41,15 +44,31 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User updateUser(Long id, User userDetails) {
-        validateUserUpdate(id, userDetails);
-        
-        User user = userRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario nao encontrado"));
-        
-        user.setName(userDetails.getName());
-        user.setEmail(userDetails.getEmail());
+    public User updateUser(Map<String, Object> payload) {
+
+        String userName = (String) payload.get("name");
+        String userEmail = (String) payload.get("email");
+        String optionalPassWord = (String) payload.get("password");        
+
+        User user = userRepository.findByIdOrThrow(JwtUtils.getCurrentUserId().get());
+
+        if(optionalPassWord != null){
+            RequestValidator.validatePasswordStrength(optionalPassWord);
+        }
+
+        user.setName(userName);
+        user.setEmail(userEmail);
         user.setUpdatedAt(LocalDateTime.now());
+
+        validateUserUpdate(user);
+        
+        if(optionalPassWord != null){
+            String encodedPassword = passwordEncoder.encode(optionalPassWord);
+            user.setPassword(encodedPassword);
+        }
+        
+
+        
         
         return userRepository.save(user);
     }
@@ -74,7 +93,7 @@ public class UserService {
         }
     }
 
-    private void validateUserUpdate(Long id, User userDetails) {
+    private void validateUserUpdate(User userDetails) {
         if (userDetails.getName() == null || userDetails.getName().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome é obrigatório");
         }
@@ -83,7 +102,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email é obrigatório");
         }
         
-        if (isEmailTakenByAnotherUser(id, userDetails.getEmail())) {
+        if (isEmailTakenByAnotherUser(userDetails.getId(), userDetails.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email já cadastrado por outro usuário");
         }
     }
@@ -97,20 +116,24 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public User findByEmailOrThrow(String email) {
+        return userRepository.findByEmailOrThrow(email);
+    }
+
     public boolean checkUserExists(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
 
     public User deactivateUser(Long id) {
-        User user = userRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario nao encontrado"));
-    
+        User user = userRepository.findByIdOrThrow(id);
+
         if (user.getDeactivatedAt() != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este usuario ja esta desativado.");
         }
     
         user.setDeactivatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
+        
         
         // Invalidar todas as sessões ativas do usuário
         userSessionService.invalidateAllUserSessions(user);
@@ -119,8 +142,7 @@ public class UserService {
     }
 
     public User activateUser(Long id) {
-        User user = userRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario nao encontrado"));
+        User user = userRepository.findByIdOrThrow(id);
     
         if (user.getDeactivatedAt() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este usuario ja esta ativo.");
@@ -141,8 +163,8 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    public User getUserById(Long id) {
+        return userRepository.findByIdOrThrow(id);
     }
 
     public boolean deleteUser(Long id) {
@@ -180,12 +202,9 @@ public class UserService {
     }
 
     public void changePassword(String email, String newPassword) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        if (!userOpt.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario nao encontrado");
-        }
-        
-        User user = userOpt.get();
+        User userOpt = userRepository.findByEmailOrThrow(email);
+         
+        User user = userOpt;
         String encodedPassword = passwordEncoder.encode(newPassword);
         user.setPassword(encodedPassword);
         user.setUpdatedAt(LocalDateTime.now());

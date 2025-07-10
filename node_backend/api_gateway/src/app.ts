@@ -89,7 +89,7 @@ const accessControl = (req: Request, res: Response, next: NextFunction) => {
     const userType = user.authorities[0]?.authority?.toUpperCase();
 
     if (!userType) {
-        return res.status(403).json({ message: 'Acesso negado' });
+        return res.status(403).json({ message: 'Acesso negado: Houve falha ao recuperar o userType' });
     }
 
     const path = req.path;
@@ -118,7 +118,7 @@ const accessControl = (req: Request, res: Response, next: NextFunction) => {
     };
 
     if (isAllowed(['ADMIN'], ['/']) ||
-        isAllowed(['USER', 'ADMIN'], ['/converter', '/users/users/createUser', '/conversions'])) {
+        isAllowed(['USER'], ['/converter', '/conversions', '/users/users/getCurrentUserData', '/users/users/createUser', '/users/users/activate', '/users/users/deactivate', '/users/users/edit'])) {
         return next();
     }
 

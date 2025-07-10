@@ -4,6 +4,7 @@ import com.mytconvert.datamanagement.dto.UserData;
 import com.mytconvert.datamanagement.dto.UserSessionDTO;
 import com.mytconvert.datamanagement.entity.user.User;
 import com.mytconvert.datamanagement.entity.user.UserType;
+import com.mytconvert.datamanagement.exception.ErrorResponse;
 import com.mytconvert.datamanagement.service.user.UserService;
 import com.mytconvert.datamanagement.service.user.UserSessionService;
 
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.mytconvert.datamanagement.utils.RequestValidator;
+import com.mytconvert.security.utils.JwtUtils;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -56,12 +58,6 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("{\"message\": \"Usuario cadastrado\", \"userName\": \"" + createdUser.getName() + "\"}");
-    }
-
-    @GetMapping("/checkUser")
-    public ResponseEntity<?> checkUser(@RequestParam String username) {
-        boolean userExists = userService.findByEmail(username).isPresent();
-        return ResponseEntity.ok().body(userExists);
     }
 
     @GetMapping("/list")
@@ -111,9 +107,10 @@ public class UserController {
 
     @GetMapping("/list/{id}")
     public ResponseEntity<UserData> getUserById(@PathVariable Long id) {
-        Optional<User> user = userService.getUserById(id);
-        if (user.isPresent()) {
-            User userInstance = user.get();
+        User user = userService.getUserById(id);
+
+        if (user != null) {
+            User userInstance = user;
 
             UserType type = userInstance.getType();
 
@@ -128,60 +125,44 @@ public class UserController {
         return ResponseEntity.status(404).build();
     }
 
-    @GetMapping("/session/{id}")
-    public ResponseEntity<UserSessionDTO> getUserSessionById(@PathVariable Long id) {
-        Optional<User> userOpt = userService.getUserById(id);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            LocalDateTime lastSession = userSessionService.getLastSessionTime(user);
-            
-            UserSessionDTO sessionDTO = new UserSessionDTO(
-                user.getId(),
-                user.getName(),
-                lastSession
-            );
-            
-            return ResponseEntity.ok(sessionDTO);
-        }
-        return ResponseEntity.notFound().build();
-    }
+    @PutMapping("/edit")
+    public ResponseEntity<String> updateUser(@RequestBody Map<String, Object> payload) {
 
-    @PutMapping("/edit/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
-
-        List<String> requiredFields = Arrays.asList("name", "email", "password");
+        List<String> requiredFields = Arrays.asList("name", "email");
         RequestValidator.validateFieldsForMap(payload, requiredFields);
 
-        String userName = (String) payload.get("name");
-        String userEmail = (String) payload.get("email");
-        String senhaPadrao = "password";
 
-        User user = new User(userName, userEmail, senhaPadrao, UserType.USER);
-
-        User updatedUser = userService.updateUser(id, user);
+        User updatedUser = userService.updateUser(payload);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body("{\"message\": \"Usuario atualizado\", \"userName\": \"" + updatedUser.getName() + "\"}");
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        boolean deleted = userService.deleteUser(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.status(404).build();
-    }
-
-    @PutMapping("/{id}/deactivate")
-    public ResponseEntity<User> deactivateUser(@PathVariable Long id) {
-        User deactivatedUser = userService.deactivateUser(id);
+    @PutMapping("/deactivate")
+    public ResponseEntity<User> deactivateUser() {
+        User deactivatedUser = userService.deactivateUser(JwtUtils.getCurrentUserId().get());
         return ResponseEntity.ok(deactivatedUser);
     }
 
-    @PutMapping("/{id}/activate")
-    public ResponseEntity<User> activateUser(@PathVariable Long id) {
-        User activateUser = userService.activateUser(id);
+    @PutMapping("/activate")
+    public ResponseEntity<User> activateUser() {
+        User activateUser = userService.activateUser(JwtUtils.getCurrentUserId().get());
         return ResponseEntity.ok(activateUser);
+    }
+
+    @GetMapping("/getCurrentUserData")
+    public ResponseEntity<?> getCurrentUserData(){
+        User user = userService.getUserById(JwtUtils.getCurrentUserId().get());
+        if (user != null) {
+            User userInstance = user;
+
+            UserData userData = new UserData(
+                    userInstance.getName(),
+                    userInstance.getEmail());
+            return ResponseEntity.ok(userData);
+        }
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new ErrorResponse("User not found", "The requested user could not be found"));
     }
 }

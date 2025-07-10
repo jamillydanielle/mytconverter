@@ -108,6 +108,6 @@ public class ConversionController {
     }
 
     private User currentUserEntity(){
-        return userService.getUserById(JwtUtils.getCurrentUserId().get()).get();
+        return userService.getUserById(JwtUtils.getCurrentUserId().get());
     }
 }

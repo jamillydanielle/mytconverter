@@ -7,6 +7,14 @@ interface LoginUserResponse {
   token: string;
 }
 
+interface LoginRequest {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+const API_BASE_URL = "http://localhost:3001";
+
 export const changeUserPassword = async (
   email: string,
   newPassword: string,
@@ -14,9 +22,7 @@ export const changeUserPassword = async (
 ): Promise<string> => {
   try {
     const response = await fetch(
-      `http://localhost:3001/users/auth/change-password/${encodeURIComponent(
-        email
-      )}`,
+      `${API_BASE_URL}/users/auth/change-password/${encodeURIComponent(email)}`,
       {
         method: "PUT",
         headers: {
@@ -35,6 +41,7 @@ export const changeUserPassword = async (
     const data = await response.text();
     return data;
   } catch (error) {
+    console.error("Error changing password:", error);
     if (error instanceof Error) {
       throw error;
     }
@@ -48,29 +55,99 @@ export const loginUser = async (
   rememberMe: boolean
 ): Promise<LoginUserResponse> => {
   try {
-    const response = await fetch("http://localhost:3001/users/auth/login", {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify({ email: username, password, rememberMe }),
+    console.log("[Auth] Iniciando tentativa de login com:", { username, rememberMe });
+    
+    // Criar o objeto de requisição para poder adicionar logs detalhados
+    const requestBody = JSON.stringify({
+      email: username,
+      password,
+      rememberMe,
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      if (
-        response.status === 403 &&
-        data.message === "A senha precisa ser trocada"
-      ) {
-        return { token: data.token || "", message: data.message };
+    
+    // Usar a nova rota direta para login
+    console.log("[Auth] Enviando requisição para:", `${API_BASE_URL}/users/auth/login`);
+    console.log("[Auth] Corpo da requisição:", requestBody);
+    
+    // Usar try/catch específico para a requisição fetch
+    let response;
+    try {
+      response = await fetch(`${API_BASE_URL}/users/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: requestBody,
+      });
+      
+      console.log("[Auth] Resposta recebida - Status:", response.status);
+      console.log("[Auth] Resposta recebida - Status Text:", response.statusText);
+      console.log("[Auth] Resposta recebida - Headers:", Object.fromEntries(response.headers.entries()));
+      
+    } catch (fetchError) {
+      console.error("[Auth] Erro na requisição fetch:", fetchError);
+      throw new Error(`Erro na conexão: ${fetchError instanceof Error ? fetchError.message : 'Desconhecido'}`);
+    }
+    
+    // Tentar obter o corpo da resposta
+    let data;
+    try {
+      const responseText = await response.text();
+      console.log("[Auth] Resposta em texto:", responseText);
+      
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText);
+          console.log("[Auth] Resposta parseada como JSON:", data);
+        } catch (jsonError) {
+          console.error("[Auth] Erro ao fazer parse da resposta como JSON:", jsonError);
+          throw new Error("Erro ao processar resposta do servidor: formato inválido");
+        }
+      } else {
+        console.error("[Auth] Resposta vazia do servidor");
+        throw new Error("O servidor retornou uma resposta vazia");
       }
-      throw new Error(data.message);
+    } catch (textError) {
+      console.error("[Auth] Erro ao obter texto da resposta:", textError);
+      throw new Error("Erro ao ler resposta do servidor");
     }
 
-    return { token: data.token || "", message: data.message };
+    if (!response.ok) {
+      // Caso especial: senha precisa ser trocada
+      if (response.status === 403 && data.message === "A senha precisa ser trocada") {
+        console.log("[Auth] Senha precisa ser trocada");
+        return { token: data.token || "", message: data.message };
+      }
+      
+      console.error("[Auth] Resposta de erro:", data);
+      throw new Error(data.message || `Erro no login: ${response.status}`);
+    }
+
+    console.log("[Auth] Login bem-sucedido:", data);
+    return { 
+      token: data.token || "", 
+      message: data.message || "Login realizado com sucesso" 
+    };
   } catch (error) {
+    console.error("[Auth] Erro durante o login:", error);
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error("An unknown error occurred");
+    throw new Error("Ocorreu um erro desconhecido durante o login");
+  }
+};
+
+export const logoutUser = async (token: string): Promise<void> => {
+  try {
+    console.log("[Auth] Iniciando logout");
+    await fetch(`${API_BASE_URL}/auth/logout`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    console.log("[Auth] Logout concluído com sucesso");
+  } catch (error) {
+    console.error("[Auth] Erro durante logout:", error);
   }
 };

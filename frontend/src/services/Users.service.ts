@@ -7,6 +7,11 @@ interface UsersResponse {
     totalPages : number;
 }
 
+interface UpdateUserResponse {
+    message: string;
+    userName: string;
+}
+
 export const createUser = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
     const response = await fetchWrapper<User>('/users/users/createUser', {
         method: 'POST',
@@ -29,22 +34,29 @@ export const getUserById = async(userId : string): Promise<User> => {
     return response;
 }
 
-export const updateUser = async (userId: string, userData: Partial<User>): Promise<User> => {
-    const response = await fetchWrapper<User>(`/users/users/${userId}`, {
+export const getCurrentUserData = async(): Promise<User> => {
+    const response =  await fetchWrapper<User>(`/users/users/getCurrentUserData`, {
+        method:'GET'
+    });
+    return response;
+}
+
+export const updateUser = async (userData: Partial<User>): Promise<UpdateUserResponse> => {
+    const response = await fetchWrapper<UpdateUserResponse>(`/users/users/edit`, {
         method: 'PUT',
         body: JSON.stringify(userData)
     });
     return response;
 };
 
-export const deactivateUser = async (userId: string): Promise<void> => {
-    await fetchWrapper<void>(`/users/users/${userId}/deactivate`, {
+export const deactivateUser = async (): Promise<void> => {
+    await fetchWrapper<void>(`/users/users/deactivate`, {
         method: 'PUT'
     });
 };
 
-export const activateUser = async (userId: string): Promise<void> => {
-    await fetchWrapper<void>(`/users/users/${userId}/activate`, {
+export const activateUser = async (): Promise<void> => {
+    await fetchWrapper<void>(`/users/users/activate`, {
         method: 'PUT'
     });
 };

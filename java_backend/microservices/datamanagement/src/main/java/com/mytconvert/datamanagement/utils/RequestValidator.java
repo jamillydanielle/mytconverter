@@ -83,7 +83,7 @@ public class RequestValidator {
         
         if (!password.matches(passwordRegex)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "A senha fornecida e muito fraca. Por favor garanta que a senha incua pelo menos um numero, uma letra maiuscula, uma letra minuscula e tenha entre 8 e 16 caracteres.");
+                "A senha fornecida e muito fraca. Por favor garanta que a senha inclua pelo menos um numero, uma letra maiuscula, uma letra minuscula e tenha entre 8 e 16 caracteres.");
         }
     }
 }

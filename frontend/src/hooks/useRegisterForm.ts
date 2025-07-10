@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { User } from '@/types/User';
 import { createUser } from '@/services/Users.service';
 import { useAlert } from '@/components/alert/AlertProvider';
+import { UserType } from '@/types/UserType';
 
 interface RegistrationData {
     name: string;
@@ -21,7 +22,13 @@ const useRegisterForm = () => {
         setLoading(true); // Iniciando o loading
 
         try {
-            const createdUser: User = await createUser(registrationData as Omit<User, 'id' | 'createdAt' | 'updatedAt'>);
+            // Adicionar o tipo USER explicitamente ao objeto
+            const userData = {
+                ...registrationData,
+                type: UserType.USER // Adicionar o tipo de usuário padrão
+            };
+            
+            await createUser(userData);
             addAlert("Usuário criado com sucesso!", "success");
             router.push('/login');
         } catch (error: any) {
