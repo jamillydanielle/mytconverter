@@ -8,6 +8,8 @@ O sistema é composto pelos seguintes microsserviços:
 *   **`emailsender` (Java):** Envia e-mails.
 *   **`gateway` (Node.js):** Atua como um ponto de entrada para o sistema, roteando requisições para os microsserviços apropriados.
 *   **`db` (PostgreSQL):** Banco de dados relacional para armazenar dados persistentes.
+*   **`minio` (MinIO):** Armazenamento de arquivos convertido (MP3/MP4).
+*   **`rabbitmq` (RabbitMQ):** Filas para processamento assíncrono das conversões.
 
 ## Pré-requisitos
 
@@ -17,7 +19,6 @@ Antes de começar, certifique-se de ter instalado:
 *   **Docker/Podman Compose:** Para gerenciar os containers.  Geralmente instalado junto com o Docker Desktop.
 *   **Node.js e npm:** Para rodar o gateway (Node.js).  Recomendável usar uma versão LTS (Long Term Support).  [https://nodejs.org/](https://nodejs.org/)
 *   **Java JDK:**  Para compilar e executar os microsserviços Java.  Recomendável JDK 17 ou superior.
-*   **Python e Poetry:** Para gerenciar dependências e executar o serviço Python. [https://python-poetry.org/](https://python-poetry.org/)
 
 ## Configuração e Execução
 
@@ -35,7 +36,7 @@ Siga estes passos para configurar e rodar o projeto:
     O Docker Compose orquestra a construção e execução de todos os serviços.
 
     ```bash
-    docker-compose up --build
+    docker compose up --build
     ```
 
 
@@ -53,7 +54,7 @@ Siga estes passos para configurar e rodar o projeto:
     Para executar em background (modo "detached"), use:
 
     ```bash
-    docker-compose up --build -d
+    docker compose up --build -d
     ```
 
     ou, para usuários Mac:
@@ -61,6 +62,69 @@ Siga estes passos para configurar e rodar o projeto:
     ```bash
     podman compose up --build -d
     ```
+
+---
+
+## Executar o Consumidor Python
+
+O consumidor Python (que escuta a fila `download_queue` no RabbitMQ) precisa ser iniciado manualmente dentro do container `converter`. 
+
+### Passos para Iniciar o Consumidor Python:
+
+1. **Acesse o Container do Backend Python:**
+
+    ```bash
+    docker exec -it mytconverter-converter-1 bash
+    ```
+
+    **Ou**, caso o container tenha outro nome, utilize:
+
+    ```bash
+    docker ps  # Verifique o nome correto do container
+    docker exec -it <nome-do-container> bash
+    ```
+
+2. **Inicie o Consumidor:**
+
+    Após acessar o container, execute o consumidor:
+
+    ```bash
+    python app/messaging/rabbitmq_consumer.py
+    ```
+
+    O consumidor começará a escutar a fila `download_queue` e processará as conversões do YouTube conforme os dados forem enviados.
+
+---
+
+## Acessando MinIO e RabbitMQ
+
+### 1. **MinIO**
+
+O MinIO é usado para armazenar os arquivos convertidos (MP3/MP4). 
+
+- **Interface Web do MinIO:**  
+  Acesse o MinIO no navegador via [http://localhost:9001](http://localhost:9001).  
+  Login:
+  - **Usuário:** `minio`
+  - **Senha:** `minio123`
+
+- **Bucket de Armazenamento:**  
+  Os arquivos convertidos são armazenados no bucket `converted-files` dentro do MinIO. Obs.: Necessario criar o bucket na primeira inicialização
+
+### 2. **RabbitMQ**
+
+O RabbitMQ gerencia as filas para o processamento assíncrono dos vídeos convertidos.
+
+- **Interface Web do RabbitMQ:**  
+  Acesse o RabbitMQ via [http://localhost:15672](http://localhost:15672).  
+  Login:
+  - **Usuário:** `guest`
+  - **Senha:** `guest`
+
+- **Fila de Downloads:**  
+  O consumidor Python escuta a fila chamada `download_queue` para processar os vídeos.
+
+---
 
 4.  **Acessando os Serviços:**
 
